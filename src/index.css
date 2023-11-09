@@ -1,8 +1,18 @@
+@font-face {
+  font-family: "gumdrop";
+  src: url("./fonts/The\ Bomb\ Sound.ttf");
+}
+
+@font-face {
+  font-family: "visage";
+  format: "woff2";
+  src: url("./fonts/Warden\ Regular.woff2");
+}
+
 body {
+  background: url(https://assets.fortnitecreativehq.com/wp-content/uploads/2023/01/21012853/Tic-Tac-Toe.png);
+  background-size: contain;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

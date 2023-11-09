@@ -1,21 +1,7 @@
 import React from 'react';
 import { styled } from '@mui/material/styles';
-import Drawer from '@mui/material/Drawer';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { Button, ListItem, ListItemIcon, ListItemText } from '@mui/material';
-import GamesIcon from '@mui/icons-material/Games';
-import SupportAgentIcon from '@mui/icons-material/SupportAgent';
-import Person from '@mui/icons-material/Person';
-import ThreePIcon from '@mui/icons-material/ThreeP';
-import logo from './logo.svg';
+import Header from "./components/Header";
+import Playground from "./components/Playground"
 
 const PREFIX = 'App';
 
@@ -32,7 +18,9 @@ const classes = {
   contentShift: `${PREFIX}-contentShift`,
   logo: `${PREFIX}-logo`,
   games: `${PREFIX}-games`,
-  game: `${PREFIX}-game`
+  game: `${PREFIX}-game`,
+  titleBar: `${PREFIX}-titleBar`,
+  titleBarText: `${PREFIX}-titleBarText`
 };
 
 const Root = styled('div')((
@@ -42,6 +30,7 @@ const Root = styled('div')((
 ) => ({
   [`&.${classes.root}`]: {
     display: 'flex',
+    backdropFilter: "blur(25px) hue-rotate(30deg)"
   },
 
   [`& .${classes.appBar}`]: {
@@ -121,13 +110,34 @@ const Root = styled('div')((
     margin: theme.spacing(1.75),
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-    borderRadius: "13px",
+    border:'1px solid #000',
+    borderRadius: '13px',
     boxShadow: theme.shadows[5],
-    transition: 'transform 0.2s',
+    transition: 'transform 0.3s',
     '&:hover': {
       transform: 'scale(1.075)',
+      filter: 'hue-rotate(45deg)'
     },
-  }
+  },
+
+  [`& .${classes.titleBar}`]: {
+      width: 'auto',
+      height: '85px',
+      textAlign: 'left',
+      background: '#fff8f86e',
+      backdropFilter: 'blur(7px) drop-shadow(2px 4px 6px black)',
+      margin: '70% 0px',
+      borderRadius: '0px 0px 10px 10px'
+  },
+
+  [`& .${classes.titleBarText}`]: {
+    position:"relative",
+    top:"20px",
+    left:"20px",
+    fontFamily: "gumdrop",
+    fontSize: "25px",
+    fontWeight:"100",
+},
 }));
 
 const drawerWidth = 240;
@@ -146,111 +156,9 @@ function App() {
 
   return (
     <Root className={classes.root}>
-      <AppBar position="fixed" className={open ? classes.appBarShift : classes.appBar}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            className={open ? classes.hide : classes.menuButton}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap>
-              Dashboard
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Drawer
-        className={classes.drawer}
-        variant="persistent"
-        anchor="left"
-        open={open}
-        classes={{
-          paper: classes.drawerPaper,
-        }}
-      >
-        <div className={classes.drawerHeader}>
-          <IconButton onClick={handleDrawerClose}>
-            {"direction" === 'ltr' ? (
-              <ChevronLeftIcon />
-            ) : (
-              <ChevronRightIcon />
-            )}
-          </IconButton>
-        </div>
-        <Divider />
-        <img src={logo} alt="Logo" className={classes.logo} />
-        <List>
-          <ListItem button>
-            <ListItemIcon>
-              <Person />
-            </ListItemIcon>
-            <ListItemText primary="Profile" />
-          </ListItem>
-          <ListItem button>
-            <ListItemIcon>
-              <GamesIcon />
-            </ListItemIcon>
-            <ListItemText primary="Games" />
-          </ListItem>
-          <ListItem button>
-            <ListItemIcon>
-              <ThreePIcon />
-            </ListItemIcon>
-            <ListItemText primary="Support" />
-          </ListItem>
-        </List>
-      </Drawer>
-      <main
-        className={open ? classes.contentShift : classes.content}
-      >
-        <div className={classes.drawerHeader} />
-        <div className={classes.games}>
-           <div
-            className={classes.game}
-            style={{
-              backgroundImage: `url('https://png.pngtree.com/png-clipart/20211219/original/pngtree-coming-soon-yellow-blue-triangle-shape-png-image_6964494.png')`,
-              backgroundColor:'#c3deff'
-            }}
-          />
-          <div
-            className={classes.game}
-            style={{
-              backgroundImage: `url('https://png.pngtree.com/png-clipart/20211219/original/pngtree-coming-soon-yellow-blue-triangle-shape-png-image_6964494.png')`,
-              backgroundColor:'#c3deff'
-            }}
-          />
-          <div
-            className={classes.game}
-            style={{
-              backgroundImage: `url('https://png.pngtree.com/png-clipart/20211219/original/pngtree-coming-soon-yellow-blue-triangle-shape-png-image_6964494.png')`,
-              backgroundColor:'#c3deff'
-            }}
-          />
-          <div
-            className={classes.game}
-            style={{
-              backgroundImage: `url('https://png.pngtree.com/png-clipart/20211219/original/pngtree-coming-soon-yellow-blue-triangle-shape-png-image_6964494.png')`,
-              backgroundColor:'#c3deff'
-            }}
-          />
-            <div
-            className={classes.game}
-            style={{
-              backgroundImage: `url('https://png.pngtree.com/png-clipart/20211219/original/pngtree-coming-soon-yellow-blue-triangle-shape-png-image_6964494.png')`,
-              backgroundColor:'#c3deff'
-            }}
-          />
-            <div
-            className={classes.game}
-            style={{
-              backgroundImage: `url('https://png.pngtree.com/png-clipart/20211219/original/pngtree-coming-soon-yellow-blue-triangle-shape-png-image_6964494.png')`,
-              backgroundColor:'#c3deff'
-            }}
-          />
-        </div>
+      <Header open={open} handleDrawerOpen={handleDrawerOpen} handleDrawerClose={handleDrawerClose}/>   
+      <main className={open ? classes.contentShift : classes.content}>
+         <Playground classes={classes}/>
       </main>
     </Root>
   );

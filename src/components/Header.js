@@ -10,7 +10,7 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { Button, ListItem, ListItemIcon, ListItemText } from '@mui/material';
+import { Button, ListItem, ListItemIcon, ListItemText, Avatar, Box, Tooltip } from '@mui/material';
 import GamesIcon from '@mui/icons-material/Games';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import Person from '@mui/icons-material/Person';
@@ -156,10 +156,17 @@ function Header(props) {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap>
+          <Typography variant="h5" noWrap sx={{ fontFamily: 'monospace',fontWeight: 700}}>
               Dashboard
           </Typography>
-          <MenuItem>Profile</MenuItem>
+            <Box sx={{ flexGrow: 0, marginLeft: 'auto'}}>
+                <button>Connect</button>
+              <Tooltip title="Open settings">
+                <IconButton>
+                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                </IconButton>
+              </Tooltip>
+            </Box>
         </Toolbar>
       </AppBar>
       <Drawer

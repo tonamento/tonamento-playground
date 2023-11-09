@@ -1,6 +1,7 @@
 import React from 'react';
 import comingSoon from "../img/coming-soon.png"
 import ImageListItemBar from '@mui/material/ImageListItemBar';
+import CircleIcon from '@mui/icons-material/Circle';
 
 function Playground(props) {
   const games = [
@@ -50,9 +51,15 @@ function Playground(props) {
            <div className={props.classes.titleBar}>
                <h2 className={props.classes.titleBarText}>{game.title}</h2>
                   {game.title === "Coming soon!"?
-                    <p style={{ marginLeft: "20px", fontFamily:"visage" }}>Stay tuned</p>
+                    <p style={{ marginLeft: "20px", fontFamily:"visage" }}>
+                      <CircleIcon sx={{fontSize:"15px"}} style={{color:'yellow', marginRight:"5px",filter:"drop-shadow(1px 1px 5px yellow)"}}/>  
+                      Stay tuned
+                    </p>
                     :
-                    <p style={{ marginLeft: "20px", fontFamily:"visage" }}>{game.online}</p>
+                    <p style={{ marginLeft: "20px", fontFamily:"visage" }}>
+                       <CircleIcon sx={{fontSize:"15px"}} style={{color:'#2fff10', marginRight:"5px",filter:"drop-shadow(1px 1px 5px #2fff10)"}}/>
+                       {game.online}
+                    </p>
                   }
             </div>
           </div>

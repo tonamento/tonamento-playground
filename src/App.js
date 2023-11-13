@@ -1,5 +1,5 @@
 import React from 'react';
-import { styled } from '@mui/material/styles';
+import { styled, makeStyles } from '@mui/material/styles';
 import Header from "./components/Header";
 import Playground from "./components/Playground"
 
@@ -14,6 +14,7 @@ const classes = {
   drawer: `${PREFIX}-drawer`,
   drawerPaper: `${PREFIX}-drawerPaper`,
   drawerHeader: `${PREFIX}-drawerHeader`,
+  listItem: `${PREFIX}-listItem`,
   content: `${PREFIX}-content`,
   contentShift: `${PREFIX}-contentShift`,
   logo: `${PREFIX}-logo`,
@@ -64,6 +65,8 @@ const Root = styled('div')((
 
   [`& .${classes.drawerPaper}`]: {
     width: drawerWidth,
+    background: '#1976d2',
+    color:"light"
   },
 
   [`& .${classes.drawerHeader}`]: {
@@ -90,6 +93,9 @@ const Root = styled('div')((
       duration: theme.transitions.duration.enteringScreen,
     }),
     marginLeft: 0,
+    [theme.breakpoints.up('sm')]: {
+      marginBottom:43
+    },
   },
 
   [`& .${classes.logo}`]: {
@@ -138,12 +144,29 @@ const Root = styled('div')((
     fontSize: "25px",
     fontWeight:"100",
 },
+
+  [`& .${classes.listItem}`]: {
+      color: "antiquewhite",
+      background: "#3a93ff",
+      borderRadius: "15px",
+      width: "93%",
+      marginLeft: "8px",
+      marginBottom:"5px",
+      transition:"1s",
+      '&:hover': {
+         backgroundColor: '#0055a4', // Set the color for the hover state
+      }
+  },
+
+  [`& .${classes.listItem} .MuiTypography-root`] : {
+     fontSize:"1.25rem",
+     fontFamily:"gumdrop"
+  }
 }));
 
 const drawerWidth = 240;
 
 function App() {
-
   const [open, setOpen] = React.useState(false);
 
   const handleDrawerOpen = () => {
@@ -156,7 +179,12 @@ function App() {
 
   return (
     <Root className={classes.root}>
-      <Header open={open} handleDrawerOpen={handleDrawerOpen} handleDrawerClose={handleDrawerClose}/>   
+      <Header 
+        open={open} 
+        handleDrawerOpen={handleDrawerOpen} 
+        handleDrawerClose={handleDrawerClose} 
+        classes={classes} 
+      />   
       <main className={open ? classes.contentShift : classes.content}>
          <Playground classes={classes}/>
       </main>

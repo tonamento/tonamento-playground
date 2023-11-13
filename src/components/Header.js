@@ -18,123 +18,9 @@ import ThreePIcon from '@mui/icons-material/ThreeP';
 import MenuItem from '@mui/material/MenuItem';
 import logo from '../logo.svg';
 
-const PREFIX = 'App';
-
-const classes = {
-  root: `${PREFIX}-root`,
-  appBar: `${PREFIX}-appBar`,
-  appBarShift: `${PREFIX}-appBarShift`,
-  menuButton: `${PREFIX}-menuButton`,
-  hide: `${PREFIX}-hide`,
-  drawer: `${PREFIX}-drawer`,
-  drawerPaper: `${PREFIX}-drawerPaper`,
-  drawerHeader: `${PREFIX}-drawerHeader`,
-  content: `${PREFIX}-content`,
-  contentShift: `${PREFIX}-contentShift`,
-  logo: `${PREFIX}-logo`,
-  games: `${PREFIX}-games`,
-  game: `${PREFIX}-game`
-};
-
-const Root = styled('div')((
-  {
-    theme
-  }
-) => ({
-  [`&.${classes.root}`]: {
-    display: 'flex',
-  },
-
-  [`& .${classes.appBar}`]: {
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-
-  [`& .${classes.appBarShift}`]: {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: drawerWidth,
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-
-  [`& .${classes.menuButton}`]: {
-    marginRight: theme.spacing(2),
-  },
-
-  [`& .${classes.hide}`]: {
-    display: 'none',
-  },
-
-  [`& .${classes.drawer}`]: {
-    width: drawerWidth,
-    flexShrink: 0,
-  },
-
-  [`& .${classes.drawerPaper}`]: {
-    width: drawerWidth,
-  },
-
-  [`& .${classes.drawerHeader}`]: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: theme.spacing(0, 1),
-    ...theme.mixins.toolbar,
-    justifyContent: 'flex-end',
-  },
-
-  [`& .${classes.content}`]: {
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginLeft: -drawerWidth,
-  },
-
-  [`& .${classes.contentShift}`]: {
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: 0,
-  },
-
-  [`& .${classes.logo}`]: {
-    width: '100%',
-    height: 'auto',
-    marginBottom: theme.spacing(2),
-  },
-
-  [`& .${classes.games}`]: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-  },
-
-  [`& .${classes.game}`]: {
-    width: 275,
-    height: 275,
-    margin: theme.spacing(1.75),
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    borderRadius: "13px",
-    boxShadow: theme.shadows[5],
-    transition: 'transform 0.2s',
-    '&:hover': {
-      transform: 'scale(1.075)',
-    },
-  }
-}));
-
-const drawerWidth = 240;
-
 function Header(props) {
-
+  const {open, classes} = props
+  
   const changeDrawerOpen = () => {
     props.handleDrawerOpen(true);
   };
@@ -145,23 +31,23 @@ function Header(props) {
 
   return (
     <>
-      <AppBar position="fixed" className={props.open ? classes.appBarShift : classes.appBar}>
+      <AppBar position="fixed" className={open ? classes.appBarShift : classes.appBar}>
         <Toolbar>
           <IconButton
             color="inherit"
             aria-label="open drawer"
             onClick={changeDrawerOpen}
             edge="start"
-            className={props.open ? classes.hide : classes.menuButton}
+            className={open ? classes.hide : classes.menuButton}
           >
             <MenuIcon />
           </IconButton>
           <Typography variant="h5" noWrap sx={{ fontFamily: 'monospace',fontWeight: 700}}>
               Dashboard
           </Typography>
-            <Box sx={{ flexGrow: 0, marginLeft: 'auto'}}>
-                <button>Connect</button>
-              <Tooltip title="Open settings">
+            <Box sx={{ flexGrow: 0, marginLeft: 'auto', display:'flex'}}>
+              <w3m-button />
+              <Tooltip title="Open settings" sx={{padding:"0px", paddingLeft:"7px"}}>
                 <IconButton>
                   <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
                 </IconButton>
@@ -173,7 +59,7 @@ function Header(props) {
         className={classes.drawer}
         variant="persistent"
         anchor="left"
-        open={props.open}
+        open={open}
         classes={{
           paper: classes.drawerPaper,
         }}
@@ -187,24 +73,24 @@ function Header(props) {
             )}
           </IconButton>
         </div>
-        <Divider />
+        <Divider sx={{background:"#1976d2"}}/>
         <img src={logo} alt="Logo" className={classes.logo} />
         <List>
-          <ListItem button>
+          <ListItem className={classes.listItem} button>
             <ListItemIcon>
-              <Person />
+              <Person fontSize="large"/>
             </ListItemIcon>
             <ListItemText primary="Profile" />
           </ListItem>
-          <ListItem button>
+          <ListItem className={classes.listItem} button>
             <ListItemIcon>
-              <GamesIcon />
+              <GamesIcon fontSize="large"/>
             </ListItemIcon>
             <ListItemText primary="Games" />
           </ListItem>
-          <ListItem button>
+          <ListItem className={classes.listItem} button>
             <ListItemIcon>
-              <ThreePIcon />
+              <ThreePIcon fontSize="large"/>
             </ListItemIcon>
             <ListItemText primary="Support" />
           </ListItem>

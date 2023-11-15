@@ -99,9 +99,10 @@ const Root = styled('div')((
   },
 
   [`& .${classes.logo}`]: {
-    width: '100%',
+    width: '80%',
     height: 'auto',
     marginBottom: theme.spacing(2),
+    alignSelf:"center"
   },
 
   [`& .${classes.games}`]: {
@@ -152,9 +153,10 @@ const Root = styled('div')((
       width: "93%",
       marginLeft: "8px",
       marginBottom:"5px",
-      transition:"1s",
+      transition:"0.25s",
       '&:hover': {
-         backgroundColor: '#0055a4', // Set the color for the hover state
+         backgroundColor: '#00c2ee', // Set the color for the hover state
+         marginLeft: "4px",
       }
   },
 

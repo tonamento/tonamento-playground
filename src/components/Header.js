@@ -16,7 +16,7 @@ import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import Person from '@mui/icons-material/Person';
 import ThreePIcon from '@mui/icons-material/ThreeP';
 import MenuItem from '@mui/material/MenuItem';
-import logo from '../logo.svg';
+import logo from '../logo.png';
 
 function Header(props) {
   const {open, classes} = props

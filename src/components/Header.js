@@ -11,10 +11,11 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { Button, ListItem, ListItemIcon, ListItemText, Avatar, Box, Tooltip } from '@mui/material';
-import GamesIcon from '@mui/icons-material/Games';
+import SwapCallsIcon from '@mui/icons-material/SwapCalls';
+import ScreenShareIcon from '@mui/icons-material/ScreenShare';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import Person from '@mui/icons-material/Person';
-import ThreePIcon from '@mui/icons-material/ThreeP';
+import AccountBalanceWalletIcon from '@mui/icons-material/Wallet';
 import MenuItem from '@mui/material/MenuItem';
 import logo from '../logo.png';
 
@@ -42,7 +43,7 @@ function Header(props) {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h5" noWrap sx={{ fontFamily: 'monospace',fontWeight: 700}}>
+          <Typography variant="h5" noWrap sx={{ fontFamily: 'avenir',fontWeight: 700}}>
               Dashboard
           </Typography>
             <Box sx={{ flexGrow: 0, marginLeft: 'auto', display:'flex'}}>
@@ -65,6 +66,7 @@ function Header(props) {
         }}
       >
         <div className={classes.drawerHeader}>
+         <img src={logo} alt="Logo" className={classes.logo} />
           <IconButton onClick={changeDrawerClose}>
             {"direction" === 'ltr' ? (
               <ChevronLeftIcon />
@@ -73,9 +75,15 @@ function Header(props) {
             )}
           </IconButton>
         </div>
-        <Divider sx={{background:"#1976d2"}}/>
-        <img src={logo} alt="Logo" className={classes.logo} />
-        <List>
+        <Divider/>
+        <div className={classes.drawerPaperChild}>
+         <img src="https://global-uploads.webflow.com/61a98989a418f6f2acefef70/621831cfafe492644bec9a4d_274636494_1299989500498515_5476423985320629070_n.gif" alt="Logo" className={classes.profilePicture} />
+         <div style={{textAlign:"center"}}>
+           <button style={{marginTop:"15px"}}>0 TOTO</button>
+           <button style={{marginTop:"7px"}}>0 Score</button>
+         </div>
+        </div>
+       <List>
           <ListItem className={classes.listItem} button>
             <ListItemIcon>
               <Person fontSize="large"/>
@@ -84,15 +92,21 @@ function Header(props) {
           </ListItem>
           <ListItem className={classes.listItem} button>
             <ListItemIcon>
-              <GamesIcon fontSize="large"/>
+              <AccountBalanceWalletIcon fontSize="large"/>
             </ListItemIcon>
-            <ListItemText primary="Games" />
+            <ListItemText primary="Wallet" />
           </ListItem>
           <ListItem className={classes.listItem} button>
             <ListItemIcon>
-              <ThreePIcon fontSize="large"/>
+              <SwapCallsIcon fontSize="large"/>
             </ListItemIcon>
-            <ListItemText primary="Support" />
+            <ListItemText primary="Swap" />
+          </ListItem>
+          <ListItem className={classes.listItem} button>
+            <ListItemIcon>
+              <ScreenShareIcon fontSize="large"/>
+            </ListItemIcon>
+            <ListItemText primary="Stream" />
           </ListItem>
         </List>
       </Drawer>

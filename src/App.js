@@ -1,7 +1,9 @@
-import React from 'react';
+import React, {useState} from 'react';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { styled, makeStyles } from '@mui/material/styles';
 import Header from "./components/Header";
-import Playground from "./components/Playground"
+import Playground from "./components/Playground";
+import UserProfile from "./components/userProfile";
 
 const PREFIX = 'App';
 
@@ -13,11 +15,13 @@ const classes = {
   hide: `${PREFIX}-hide`,
   drawer: `${PREFIX}-drawer`,
   drawerPaper: `${PREFIX}-drawerPaper`,
+  drawerPaperChild: `${PREFIX}-drawerPaperChild`,
   drawerHeader: `${PREFIX}-drawerHeader`,
   listItem: `${PREFIX}-listItem`,
   content: `${PREFIX}-content`,
   contentShift: `${PREFIX}-contentShift`,
   logo: `${PREFIX}-logo`,
+  profilePicture: `${PREFIX}-profilePicture`,
   games: `${PREFIX}-games`,
   game: `${PREFIX}-game`,
   titleBar: `${PREFIX}-titleBar`,
@@ -69,12 +73,38 @@ const Root = styled('div')((
     color:"light"
   },
 
+  [`& .${classes.drawerPaperChild}`]: {
+     display:"flex",
+     placeContent:"space-between",
+     background: "#00106054",
+     margin: "6px 6px",
+     borderRadius: 12
+  },
+
+  [`& .${classes.drawerPaperChild} button`]: {
+    width:95,
+    height:45,
+    borderRadius:12,
+    marginRight:5,
+    border:"none",
+    backgroundColor:"#3a93ff",
+    fontFamily:"avenir",
+    fontSize:17,
+    color:"white",
+    borderBottom:"1.5px solid lightsteelblue",
+    transition:"0.35s",
+    '&:hover': {
+      background:"#00c2ee"
+   }
+ },
+
   [`& .${classes.drawerHeader}`]: {
     display: 'flex',
     alignItems: 'center',
     padding: theme.spacing(0, 1),
     ...theme.mixins.toolbar,
     justifyContent: 'flex-end',
+    placeContent: 'space-between'
   },
 
   [`& .${classes.content}`]: {
@@ -98,11 +128,20 @@ const Root = styled('div')((
     },
   },
 
-  [`& .${classes.logo}`]: {
-    width: '80%',
+  [`& .${classes.profilePicture}`]: {
+    width: '40%',
     height: 'auto',
     marginBottom: theme.spacing(2),
-    alignSelf:"center"
+    alignSelf:"left",
+    marginLeft: 15,
+    marginTop: 13.5,
+    borderRadius: 24,
+    background: "#3a93ff",
+    padding: 5
+  },
+
+  [`& .${classes.logo}`]: {
+    width:45
   },
 
   [`& .${classes.games}`]: {
@@ -147,29 +186,32 @@ const Root = styled('div')((
 },
 
   [`& .${classes.listItem}`]: {
-      color: "antiquewhite",
-      background: "#3a93ff",
-      borderRadius: "15px",
-      width: "93%",
-      marginLeft: "8px",
-      marginBottom:"5px",
-      transition:"0.25s",
+      color: 'antiquewhite',
+      background: '#3a93ff',
+      borderRadius: 15,
+      width: '93%',
+      marginLeft: 8,
+      marginBottom:6,
+      borderBottom:"1.5px solid lightsteelblue",
+      transition:'0.25s',
       '&:hover': {
          backgroundColor: '#00c2ee', // Set the color for the hover state
-         marginLeft: "4px",
+         marginTop:12,
+         marginBottom:12
       }
   },
 
   [`& .${classes.listItem} .MuiTypography-root`] : {
      fontSize:"1.25rem",
-     fontFamily:"gumdrop"
+     fontFamily:"avenir"
   }
 }));
 
 const drawerWidth = 240;
 
 function App() {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
+  const [openProfile, setProfileOpen] = useState(false);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -177,6 +219,14 @@ function App() {
 
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  const handleProfileOpen = () => {
+    setProfileOpen(true);
+  };
+
+  const handleProfileClose = () => {
+    setProfileOpen(false);
   };
 
   return (
@@ -188,7 +238,12 @@ function App() {
         classes={classes} 
       />   
       <main className={open ? classes.contentShift : classes.content}>
-         <Playground classes={classes}/>
+        <Router> 
+           <Routes> 
+                <Route exact path='/' element={<Playground classes={classes}/>}></Route> 
+                <Route exact path='/profile' element={< UserProfile classes={classes}/>}></Route> 
+           </Routes> 
+       </Router> 
       </main>
     </Root>
   );

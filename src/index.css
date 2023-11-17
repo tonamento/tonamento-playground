@@ -9,6 +9,18 @@
   src: url("./fonts/Warden\ Regular.woff2");
 }
 
+@font-face {
+  font-family: "rackis";
+  format: "ttf";
+  src: url("./fonts/Rackis\ Bold.ttf");
+}
+
+@font-face {
+  font-family: "avenir";
+  src: url("./fonts/Avenir-Black.ttf")format("ttf");
+  src: url("./fonts/Avenir-Black.woff")format("woff");
+}
+
 body {
   background: url(https://assets.fortnitecreativehq.com/wp-content/uploads/2023/01/21012853/Tic-Tac-Toe.png);
   background-size: contain;

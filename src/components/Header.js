@@ -1,4 +1,5 @@
 import React from 'react';
+import { BrowserRouter as Router,Routes, Route, Link } from 'react-router-dom'; 
 import { styled } from '@mui/material/styles';
 import Drawer from '@mui/material/Drawer';
 import AppBar from '@mui/material/AppBar';
@@ -84,24 +85,30 @@ function Header(props) {
          </div>
         </div>
        <List>
-          <ListItem className={classes.listItem} button>
-            <ListItemIcon>
-              <Person fontSize="large"/>
-            </ListItemIcon>
-            <ListItemText primary="Profile" />
-          </ListItem>
+          <Link to='/'>
+            <ListItem className={classes.listItem} button>
+              <ListItemIcon>
+                <Person fontSize="large"/>
+              </ListItemIcon>
+              <ListItemText primary="Profile" />
+            </ListItem>
+          </Link>
+          <Link to='/profile'>
           <ListItem className={classes.listItem} button>
             <ListItemIcon>
               <AccountBalanceWalletIcon fontSize="large"/>
             </ListItemIcon>
             <ListItemText primary="Wallet" />
           </ListItem>
-          <ListItem className={classes.listItem} button>
-            <ListItemIcon>
-              <SwapCallsIcon fontSize="large"/>
-            </ListItemIcon>
-            <ListItemText primary="Swap" />
-          </ListItem>
+          </Link>
+          <Link to='/swap'>
+              <ListItem className={classes.listItem} button>
+                <ListItemIcon>
+                  <SwapCallsIcon fontSize="large"/>
+                </ListItemIcon>
+                <ListItemText primary="Swap" />
+              </ListItem>
+          </Link>
           <ListItem className={classes.listItem} button>
             <ListItemIcon>
               <ScreenShareIcon fontSize="large"/>

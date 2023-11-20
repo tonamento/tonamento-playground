@@ -1,9 +1,10 @@
-import React, {useState} from 'react';
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React, {useState, useEffect} from 'react';
+import { Routes, Route } from "react-router-dom";
 import { styled, makeStyles } from '@mui/material/styles';
 import Header from "./components/Header";
 import Playground from "./components/Playground";
 import UserProfile from "./components/userProfile";
+import Swapping from "./components/Swapping";
 
 const PREFIX = 'App';
 
@@ -213,6 +214,12 @@ function App() {
   const [open, setOpen] = useState(false);
   const [openProfile, setProfileOpen] = useState(false);
 
+  useEffect(() => {
+    fetch("http://localhost:5000/api")
+      .then((res) => res.json())
+      .then((data) => console.log(data.message));
+  }, []);
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -238,12 +245,11 @@ function App() {
         classes={classes} 
       />   
       <main className={open ? classes.contentShift : classes.content}>
-        <Router> 
            <Routes> 
                 <Route exact path='/' element={<Playground classes={classes}/>}></Route> 
                 <Route exact path='/profile' element={< UserProfile classes={classes}/>}></Route> 
+                <Route exact path='/swap' element={< Swapping classes={classes}/>}></Route> 
            </Routes> 
-       </Router> 
       </main>
     </Root>
   );

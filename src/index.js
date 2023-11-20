@@ -3,11 +3,11 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { BrowserRouter as Router,Routes, Route, Link } from 'react-router-dom'; 
+import { BrowserRouter as Router } from 'react-router-dom'; 
 import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react'
 
 import { WagmiConfig } from 'wagmi'
-import { arbitrum, mainnet } from 'viem/chains'
+import { baseGoerli } from 'viem/chains'
 
 // 1. Get projectId
 const projectId = '824db33d55d77991289fffda032dfbfc'
@@ -20,7 +20,7 @@ const metadata = {
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
 
-const chains = [mainnet, arbitrum]
+const chains = [baseGoerli]
 const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata })
 
 // 3. Create modal
@@ -28,9 +28,11 @@ createWeb3Modal({ wagmiConfig, projectId, chains })
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+     <Router> 
         <WagmiConfig config={wagmiConfig}>
            <App/>
        </WagmiConfig>
+    </Router>
   </React.StrictMode>
 );
 

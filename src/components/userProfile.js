@@ -2,10 +2,8 @@ import * as React from 'react';
 import { useState } from 'react';
 import {
   Avatar,
-  Button,
   Card,
   CardContent,
-  Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
@@ -16,6 +14,12 @@ import {
   TextField,
   Container,
   Box,
+  Dialog,
+  Button,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
@@ -23,7 +27,26 @@ import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 const UserProfile = () => {
   const [username, setUsername] = useState('');
   const [openUploadModal, setOpenUploadModal] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [fromCurrency, setFromCurrency] = useState('USDC');
+  const [toCurrency, setToCurrency] = useState('TOTO');
 
+  const handleDepositOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDepositClose = () => {
+    setOpen(false);
+  };
+
+  const handleSwap = () => {
+    // Logic for swapping from fromCurrency to toCurrency
+  };
+
+  const handleApprove = () => {
+    // Logic for approving the swap
+  };
+  
   const handleUsernameChange = (event) => {
     setUsername(event.target.value);
   };
@@ -92,7 +115,7 @@ const UserProfile = () => {
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={6}>
-              <Button variant="contained" onClick={handleDeposit} fullWidth>
+              <Button variant="contained" onClick={handleDepositOpen} fullWidth>
                 Deposit USDT
               </Button>
             </Grid>
@@ -111,6 +134,52 @@ const UserProfile = () => {
             {/* Your text and upload input here */}
           </DialogContentText>
         </DialogContent>
+      </Dialog>
+      <Dialog open={open} onClose={handleDepositClose}>
+        <Box p={2}>
+          <FormControl fullWidth>
+            <InputLabel id="select-from-currency-label">From Currency</InputLabel>
+            <Select
+              labelId="select-from-currency-label"
+              id="select-from-currency"
+              value={fromCurrency}
+              label="From Currency"
+              onChange={(event) => setFromCurrency(event.target.value)}
+            >
+              <MenuItem value="USDC">USDC</MenuItem>
+              <MenuItem value="TOTO">TOTO</MenuItem>
+            </Select>
+          </FormControl>
+          <Box mt={2}>
+            <FormControl fullWidth>
+              <InputLabel id="select-to-currency-label">To Currency</InputLabel>
+              <Select
+                labelId="select-to-currency-label"
+                id="select-to-currency"
+                value={toCurrency}
+                label="To Currency"
+                onChange={(event) => setToCurrency(event.target.value)}
+              >
+                <MenuItem value="USDC">USDC</MenuItem>
+                <MenuItem value="TOTO">TOTO</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+          <Box mt={3} display="flex" justifyContent="space-between" alignItems="center">
+            <Button
+              variant="contained"
+              style={{ backgroundColor: '#1976d2', color: '#ffffff' }}
+            >
+              Confirm Swap
+            </Button>
+            <Button
+              variant="contained"
+              style={{ backgroundColor: '#1976d2', color: '#ffffff' }}
+            >
+              Approve Swap
+            </Button>
+          </Box>
+        </Box>
       </Dialog>
     </Container>
 )}

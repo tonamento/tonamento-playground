@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Button, Container, FormControl, Select, MenuItem, InputLabel, TextField, Box } from '@mui/material';
+import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
 
-function SwapForm() {
+export default function SwapForm() {
   const [fromCurrency, setFromCurrency] = useState('USDC');
   const [toCurrency, setToCurrency] = useState('TOTO');
   const [fromAmount, setFromAmount] = useState('');
@@ -28,8 +29,11 @@ function SwapForm() {
 
   return (
     <Container maxWidth="sm" sx={{height:"100vh"}}>
-      <Box mt={12} sx={{background:"#fff", padding:5, borderRadius:13, placeContent:"center"}}>
-       <h1 style={{fontFamily:"gumdrop", fontWeight:"100", marginBottom:"20px"}}>Swapping here!</h1>
+      <Box mt={12} sx={{background:"#fff", borderRadius:12, padding:"10px 35px 35px 35px"}}>
+        <h1 style={{fontFamily:"gumdrop", fontWeight:200}}>
+          <CurrencyExchangeIcon sx={{verticalAlign:"middle", marginRight:1}} fontSize='large'/>
+          Swapping here!
+        </h1>
         <FormControl variant="outlined" fullWidth>
           <InputLabel id="from-currency-label">From Currency</InputLabel>
           <Select
@@ -80,18 +84,16 @@ function SwapForm() {
         </Box>
         <Box mt={3} display="flex" justifyContent="space-between" alignItems="center">
           <Button
-            size="large"
             variant="contained"
             onClick={handleSwap}
-            style={{ backgroundColor: '#1976d2', color: '#ffffff', fontFamily:"avenir", padding:"14px 45px",}}
+            style={{ backgroundColor: '#1976d2', color: '#ffffff', fontFamily:"avenir"}}
           >
             Confirm Swap
           </Button>
           <Button
-            size="large"
             variant="contained"
             onClick={handleApprove}
-            style={{ backgroundColor: '#1976d2', color: '#ffffff', fontFamily:"avenir", padding:"14px 45px",}}
+            style={{ backgroundColor: '#1976d2', color: '#ffffff', fontFamily:"avenir"}}
           >
             Approve Swap
           </Button>
@@ -100,5 +102,3 @@ function SwapForm() {
     </Container>
   );
 }
-
-export default SwapForm;

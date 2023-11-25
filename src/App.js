@@ -5,8 +5,11 @@ import Header from "./components/Header";
 import Playground from "./components/Playground";
 import UserProfile from "./components/userProfile";
 import Swapping from "./components/Swapping";
+import io from "socket.io-client";
+
 
 const PREFIX = 'App';
+const ENDPOINT = "http://localhost:4000";
 
 const classes = {
   root: `${PREFIX}-root`,
@@ -213,14 +216,28 @@ const drawerWidth = 240;
 function App() {
   const [open, setOpen] = useState(false);
   const [openProfile, setProfileOpen] = useState(false);
+  let socket = null;
 
   useEffect(() => {
-    fetch("http://localhost:5000/api")
-      .then((res) => res.json())
-      .then((data) => console.log(data.message));
+    socket = io(ENDPOINT);
+
+    socket.on('connect', () => {
+      console.log('Connected to server ' + socket.id);
+    });
+    socket.on('disconnect', () => {
+      console.log('Disconnected from server');
+    });
+    socket.on('message', (data) => {
+      alert(data)
+    })
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   const handleDrawerOpen = () => {
+    socket.emit('message', 'hello')
+    console.log('Message sent')
     setOpen(true);
   };
 

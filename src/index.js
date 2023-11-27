@@ -4,10 +4,9 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter as Router } from 'react-router-dom'; 
-import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react'
-
-import { WagmiConfig } from 'wagmi'
-import { baseGoerli } from 'viem/chains'
+import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react';
+import { WagmiConfig } from 'wagmi';
+import { baseGoerli } from 'viem/chains';
 
 // 1. Get projectId
 const projectId = '824db33d55d77991289fffda032dfbfc'

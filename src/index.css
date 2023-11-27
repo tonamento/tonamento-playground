@@ -1,6 +1,7 @@
 @font-face {
   font-family: "gumdrop";
-  src: url("./fonts/The\ Bomb\ Sound.ttf");
+  src: url("./fonts/The\ Bomb\ Sound.woff2") format("woff2");
+  src: url("./fonts/The\ Bomb\ Sound.ttf") format("ttf");
 }
 
 @font-face {

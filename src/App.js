@@ -5,6 +5,7 @@ import Header from "./components/Header";
 import Playground from "./components/Playground";
 import UserProfile from "./components/userProfile";
 import Swapping from "./components/Swapping";
+import Loading from "./components/Loading";
 import io from "socket.io-client";
 
 
@@ -29,7 +30,12 @@ const classes = {
   games: `${PREFIX}-games`,
   game: `${PREFIX}-game`,
   titleBar: `${PREFIX}-titleBar`,
-  titleBarText: `${PREFIX}-titleBarText`
+  titleBarText: `${PREFIX}-titleBarText`,
+  roomsModal: `${PREFIX}-roomsModal`,
+  roomsModalContent: `${PREFIX}-roomsModalContent`,
+  roomPreview: `${PREFIX}-roomPreview`,
+  roomBox: `${PREFIX}-roomBox`,
+  roomBoxText: `${PREFIX}-roomBoxText`,
 };
 
 const Root = styled('div')((
@@ -208,7 +214,18 @@ const Root = styled('div')((
   [`& .${classes.listItem} .MuiTypography-root`] : {
      fontSize:"1.25rem",
      fontFamily:"avenir"
+  },
+
+ [`& .${classes.roomPreview}`]: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(1),  // Use the theme spacing to keep consistent spacing
+ },
+
+ [`& .${classes.roomBoxText} .MuiTypography-root`]: {
+     fontFamily:"avenir"
   }
+
 }));
 
 const drawerWidth = 240;
@@ -216,28 +233,27 @@ const drawerWidth = 240;
 function App() {
   const [open, setOpen] = useState(false);
   const [openProfile, setProfileOpen] = useState(false);
-  let socket = null;
+  const [socket, setSocket] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    socket = io(ENDPOINT);
+    const socket = io(ENDPOINT);
 
     socket.on('connect', () => {
-      console.log('Connected to server ' + socket.id);
+      setSocket(socket);
+      setIsLoading(false);
     });
+    
     socket.on('disconnect', () => {
       console.log('Disconnected from server');
     });
-    socket.on('message', (data) => {
-      alert(data)
-    })
+    
     return () => {
       socket.disconnect();
     };
   }, []);
 
   const handleDrawerOpen = () => {
-    socket.emit('message', 'hello')
-    console.log('Message sent')
     setOpen(true);
   };
 
@@ -263,9 +279,17 @@ function App() {
       />   
       <main className={open ? classes.contentShift : classes.content}>
            <Routes> 
-                <Route exact path='/' element={<Playground classes={classes}/>}></Route> 
-                <Route exact path='/profile' element={< UserProfile classes={classes}/>}></Route> 
-                <Route exact path='/swap' element={< Swapping classes={classes}/>}></Route> 
+             {!isLoading ? (
+                <>
+                  <Route exact path='/' element={<Playground classes={classes} socket={socket} />}></Route> 
+                  <Route exact path='/profile' element={< UserProfile classes={classes}/>}></Route> 
+                  <Route exact path='/swap' element={< Swapping classes={classes}/>}></Route> 
+                </>
+              ) : (
+                <>
+                  <Route exact path='/' element={<Loading classes={classes} text={"Loading Playground..."} neededSkeletons={true}/>}></Route>
+                </>
+            )}
            </Routes> 
       </main>
     </Root>

@@ -1,12 +1,25 @@
 @font-face {
   font-family: "gumdrop";
-  src: url("./fonts/The\ Bomb\ Sound.ttf");
+  src: url("./fonts/The\ Bomb\ Sound.woff2") format("woff2");
+  src: url("./fonts/The\ Bomb\ Sound.ttf") format("ttf");
 }
 
 @font-face {
   font-family: "visage";
   format: "woff2";
   src: url("./fonts/Warden\ Regular.woff2");
+}
+
+@font-face {
+  font-family: "rackis";
+  format: "ttf";
+  src: url("./fonts/Rackis\ Bold.ttf");
+}
+
+@font-face {
+  font-family: "avenir";
+  src: url("./fonts/Avenir-Black.ttf")format("ttf");
+  src: url("./fonts/Avenir-Black.woff")format("woff");
 }
 
 body {

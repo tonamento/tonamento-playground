@@ -7,6 +7,7 @@ import UserProfile from "./components/userProfile";
 import Swapping from "./components/Swapping";
 import Loading from "./components/Loading";
 import io from "socket.io-client";
+import Game from './components/Game';
 
 
 const PREFIX = 'App';
@@ -235,6 +236,10 @@ function App() {
   const [openProfile, setProfileOpen] = useState(false);
   const [socket, setSocket] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [neededSkeletons, setNeededSkeletons] = useState(true);
+  const [loadingText, setLoadingText] = useState('loading playground...');
+  const [loadingSubText, setLoadingSubText] = useState('');
+  
 
   useEffect(() => {
     const socket = io(ENDPOINT);
@@ -281,15 +286,16 @@ function App() {
            <Routes> 
              {!isLoading ? (
                 <>
-                  <Route exact path='/' element={<Playground classes={classes} socket={socket} />}></Route> 
+                  <Route exact path='/' element={<Playground classes={classes} socket={socket} setLoadingStatus={setIsLoading} setLoadingText={setLoadingText} setLoadingSubText={setLoadingSubText} setNeededSkeletons={setNeededSkeletons}  />}></Route> 
                   <Route exact path='/profile' element={< UserProfile classes={classes}/>}></Route> 
                   <Route exact path='/swap' element={< Swapping classes={classes}/>}></Route> 
                 </>
               ) : (
                 <>
-                  <Route exact path='/' element={<Loading classes={classes} text={"Loading Playground..."} neededSkeletons={true}/>}></Route>
+                  <Route exact path='/' element={<Loading classes={classes} text={loadingText} subText={loadingSubText} neededSkeletons={neededSkeletons}/>}></Route>
                 </>
             )}
+             <Route path="/game" element={<Game classes={classes} socket={socket} />} />
            </Routes> 
       </main>
     </Root>

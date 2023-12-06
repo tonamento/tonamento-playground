@@ -14,7 +14,7 @@ const RotatingHourglassTopIcon = styled(HourglassTopIcon)`
   animation: ${rotate} 1.5s linear infinite;
 `;
 
-const Loading = ({classes, text, neededSkeletons}) => {
+const Loading = ({classes, text, neededSkeletons, subText}) => {
     const dialogNumber = [1, 2, 3, 4, 5, 6, 7, 8]
     return (
       <div style={{ height: '100vh'}}>
@@ -40,6 +40,9 @@ const Loading = ({classes, text, neededSkeletons}) => {
               <Typography variant="h5" component="div" mt={4} style={{fontFamily: 'gumdrop', textAlign: 'center'}}>
                   {text} <RotatingHourglassTopIcon sx={{verticalAlign: 'middle'}}/>
               </Typography>
+              <p style={{fontFamily: 'gumdrop', textAlign: 'center'}}>
+                 {subText}
+              </p>
           </Box>
         </Dialog>
     </div>

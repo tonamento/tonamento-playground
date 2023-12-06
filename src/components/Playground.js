@@ -6,6 +6,7 @@ import { Modal, Paper, Box, Button, Typography, Dialog, ListItemText, ListItem, 
 
 
 function Playground(props) {
+  const {classes, setLoadingText, setLoadingSubText, setLoadingStatus, setNeededSkeletons} = props
   const [openRoom, setOpenRoom] = useState(false);
   const [openCreateRoom, setOpenCreateRoom] = useState(false);
   const [roomName, setRoomName] = useState('');
@@ -21,6 +22,19 @@ function Playground(props) {
     socket.on('roomCreated', (data) => {
       setRooms([...rooms, data.room])
     })
+
+      const newPlayerHandler = (data) => {
+        setLoadingSubText(`${data.players.length + 1} / ${data.maxPlayers} players joined`);
+        socket.off('newPlayer', newPlayerHandler);
+      };
+    
+      socket.on('newPlayer', data => {
+        newPlayerHandler(data)
+      });
+    
+      return () => {
+        socket.off('newPlayer', newPlayerHandler);
+      }
   })
   
   // get rooms from server and set rooms state by socket
@@ -48,9 +62,7 @@ function Playground(props) {
   }
 
   const createRoom = () => {
-      setOpenCreateRoom(false)
-      setOpenRoom(true)
-      socket.emit('createRoom', {
+      const roomData = {
         game: currectGame,
         name: roomName,
         owner: socket.id,
@@ -59,7 +71,14 @@ function Playground(props) {
         players: [socket.id],
         playersJoined : 1,
         maxPlayers: roomMaxPlayers,
-      })
+      }
+      setOpenCreateRoom(false)
+      setOpenRoom(false)
+      setLoadingStatus(true)
+      setNeededSkeletons(false)
+      setLoadingText('Waiting for joining players...')
+      setLoadingSubText(`1 / ${roomData.maxPlayers} players joined`)
+      socket.emit('createRoom', roomData)
   }
 
   const handleCreateRoom = () => {
@@ -69,6 +88,14 @@ function Playground(props) {
 
   const handleCloseCreateRoom = () => {
     setOpenCreateRoom(false)
+  }
+
+  const joinRoom = (roomID) => {
+    const roomData = rooms.find(room => room.id === roomID)
+    setCurrectGame(roomData)
+    setLoadingStatus(true)
+    setLoadingSubText(`${roomData.players.length + 1} / ${roomData.maxPlayers} players joined`)
+    socket.emit('joinRoom', roomID)
   }
 
   const games = [
@@ -111,17 +138,17 @@ function Playground(props) {
 
   return (
     <>
-      <div className={props.classes.drawerHeader} />
-      <div className={props.classes.games}>
+      <div className={classes.drawerHeader} />
+      <div className={classes.games}>
         {games.map((game, index) => (
-          <div key={index} className={props.classes.game} onClick={handleOpenRoom}
+          <div key={index} className={classes.game} onClick={handleOpenRoom}
             style={{
               backgroundImage: `url(${game.image})`,
               backgroundColor: '#c3deff'
             }}
           >
-           <div className={props.classes.titleBar}>
-               <h2 className={props.classes.titleBarText}>{game.title}</h2>
+           <div className={classes.titleBar}>
+               <h2 className={classes.titleBarText}>{game.title}</h2>
                   {game.title === "Coming soon!"?
                     <p style={{ marginLeft: "20px", fontFamily:"visage" }}>
                       <CircleIcon sx={{fontSize:"15px"}} style={{color:'yellow', marginRight:"5px",filter:"drop-shadow(1px 1px 5px yellow)"}}/>  
@@ -138,15 +165,15 @@ function Playground(props) {
         ))}
       </div>
       <Dialog open={openRoom} onClose={handleCloseRoom} maxWidth="xl">
-        <Box className={props.classes.roomsModal} p={3} width={700}>
+        <Box className={classes.roomsModal} p={3} width={700}>
           <Typography variant="h5" mb={2} sx={{fontFamily:"avenir", fontWeight:500}}>Online Rooms</Typography>
-          <div className={props.classes.roomPreview}>
+          <div className={classes.roomPreview}>
             {rooms.length > 0 ? rooms.map((room, index) => (
               <ListItem sx={{background:"dodgerblue", borderRadius:"10px", margin:0.5, padding:1}} button key={index}>
                   <ListItemText primary={<Typography variant="h6" style={{fontFamily: 'gumdrop'}}>{room.name}</Typography>} />
                   <ListItemText primary={<Typography variant="h6" style={{fontFamily: 'gumdrop'}}>{room.playersJoined}/{room.maxPlayers} Joined</Typography>} />
                   <ListItemText primary={<Typography variant="h6" style={{fontFamily: 'gumdrop'}}>{room.ticketPrice}</Typography>} />
-                  <Button variant="contained" sx={{marginLeft:"auto",background:"gold", borderRadius:"10px", fontWeight:800, color:"black"}}>Join</Button>
+                  <Button onClick={() => joinRoom(room.id)} variant="contained" sx={{marginLeft:"auto",background:"gold", borderRadius:"10px", fontWeight:800, color:"black"}}>Join</Button>
             </ListItem>)
             ) : (
               <ListItem sx={{background:"gold", borderRadius:"10px", marginBottom:0.1}} button>
@@ -160,8 +187,8 @@ function Playground(props) {
           <Button onClick={handleCloseRoom} variant="contained" sx={{fontFamily:"avenir",marginTop:"20px", borderRadius:"10px",background:"#ff0000", marginLeft:0.5}}>Exit</Button>
       </Box>
     </Dialog>
-      <Dialog open={openCreateRoom} onClose={handleCloseCreateRoom} className={props.classes.roomsModal} maxWidth="xl" sx={{display:"flex", justifyContent:"center", alignItems:"center", padding:8}}>
-         <Box className={props.classes.roomsModal} p={3} width={500}>
+      <Dialog open={openCreateRoom} onClose={handleCloseCreateRoom} className={classes.roomsModal} maxWidth="xl" sx={{display:"flex", justifyContent:"center", alignItems:"center", padding:8}}>
+         <Box className={classes.roomsModal} p={3} width={500}>
               <TextField
                 fullWidth
                 label="Room Name"

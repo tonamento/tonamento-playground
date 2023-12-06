@@ -1,3 +1,7 @@
+body {
+    background: #ffd7bc !important;
+}
+
 .container{
      margin:auto;
      width: 100vw;
@@ -136,7 +140,7 @@
 }
 
 #chatAppActions {
-    background: #777777;
+    background: #16191a;
     border-radius: 13px;
     cursor: pointer;
     -moz-user-select: none;
@@ -150,7 +154,7 @@
 }
 
 #chatAppActions span{
-    font-family: "visage", "gumdrop";
+    font-family: "gumdrop";
     display: inline-block;
     background:#0040c1;
     margin: 5px 4px;
@@ -174,16 +178,46 @@
 }
 
 #chatAppInput {
-  width: 95%;
+  width: 85%;
   border: none;
   border-radius: 7px;
-  height: 10%;
+  height: 80%;
   margin-top:15px;
   padding: 0px 10px;
+  margin-right:5px;
   background: #1c1b1b;
+  color: white;
+  font-size: large;
+  font-family: "avenir", "gumdrop";
 }
 
-#undo{
+#chatAppEmojiBtn {
+    width: 30px;
+    height: 30px;
+    z-index: 1;
+    margin-right: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color:white;
+    margin-right:10px;
+    transition: .5s ease;
+  }
+
+  #chatAppEmojiBtnActive {
+    transition: .5s ease;
+    width: 35px;
+    height: 35px;
+    background: transparent;
+    color:rgba(30, 218, 255, 0.777);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    z-index: 1;
+    margin-right:10px;
+  }
+
+  #undo{
     position: relative;
     z-index: 990;
 }

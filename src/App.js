@@ -8,7 +8,7 @@ import Swapping from "./components/Swapping";
 import Loading from "./components/Loading";
 import io from "socket.io-client";
 import Game from './components/Game';
-
+import Game2048 from './games/2048/2048';
 
 const PREFIX = 'App';
 const ENDPOINT = "http://localhost:4000";
@@ -295,7 +295,11 @@ function App() {
                   <Route exact path='/' element={<Loading classes={classes} text={loadingText} subText={loadingSubText} neededSkeletons={neededSkeletons}/>}></Route>
                 </>
             )}
-             <Route path="/game" element={<Game classes={classes} socket={socket} />} />
+           <Route exact path="/games">
+               <Route exact path="game-2048">
+                  <Route exact path=":roomId" element={<Game2048 />}/>
+                </Route>
+            </Route>
            </Routes> 
       </main>
     </Root>

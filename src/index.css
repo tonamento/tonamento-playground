@@ -15,7 +15,7 @@
   format: "ttf";
   src: url("./fonts/Rackis\ Bold.ttf");
 }
-
+/* menu font */
 @font-face {
   font-family: "avenir";
   src: url("./fonts/Avenir-Black.ttf")format("ttf");

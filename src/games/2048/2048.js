@@ -5,9 +5,11 @@ import { useParams } from "react-router-dom";
 import CelebrationIcon from '@mui/icons-material/Celebration';
 import './2048.css';
 
-const Game2048 = () => {
+const Game2048 = ({socket}) => {
   const [message, setMessage] = useState('');
   const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
+  const [roomPlayers, setRoomPlayers] = useState([]);
+  const {roomId} = useParams();
 
    const playground = () => {
       var gameObj = {
@@ -287,12 +289,23 @@ const Game2048 = () => {
   useEffect(() => {
     playground()
   })
-  
-  const closeEmojiPicker = () => {
-    setOpenEmojiPicker(false);
-  };
 
-  const handleOpenEPicker = () => {
+  // get currect players from socket
+  useEffect(() => {
+    const timer = setInterval(() => {
+      socket.emit('getPlayers', roomId);
+    }, 1000);
+  
+    socket.on('getPlayers', (data) => {
+        setRoomPlayers(data)
+      })
+  
+    return () => {
+      clearInterval(timer);
+    };
+  });
+
+  const handleOpenEmojiPicker = () => {
     if (!openEmojiPicker) { setOpenEmojiPicker(true) }
     else {setOpenEmojiPicker(false)}
   };
@@ -310,15 +323,24 @@ const Game2048 = () => {
             <p id="score">0</p>
             <div id="addScore"></div>
           </div>
-          <div id="usersStage"></div>
+          <div id="usersStage">
+            <div>
+                {/* list users in table with theire score */}
+                <ul id="playersTable">
+                    {roomPlayers.map((player) => (
+                        <li className="li-player">{`${player.substring(0, 10)}...`}</li>
+                    ))}
+                </ul>
+            </div>
+          </div>
         </div>
         <div id="stage"></div>
         <div id="rightSide">
           <div id="chatAppActions">
-            <span>Let's go!</span>
-            <span>Haha😁</span>
-            <span>Nooooo🤬</span>
-            <span>Im winner👀</span>
+            <span>Let's go! 🔥</span>
+            <span>Haha 😁</span>
+            <span>Nooooo 🤬</span>
+            {/* <span>Im winner👀</span> */}
           </div>
           <div id="chatApp">
             {openEmojiPicker && (
@@ -332,7 +354,10 @@ const Game2048 = () => {
                 onChange={(e) => setMessage(e.target.value)}
                 value={message}
             />
-              <button onClick={handleOpenEPicker} id={openEmojiPicker? 'chatAppEmojiBtnActive' : 'chatAppEmojiBtn'}>
+              <button onClick={handleOpenEmojiPicker} id={openEmojiPicker? 'chatAppEmojiBtnActive' : 'chatAppEmojiBtn'}>
+                <CelebrationIcon fontSize='large' sx={{verticalAlign:"middle"}}/>
+              </button>
+              <button onClick={handleOpenEmojiPicker}>
                 <CelebrationIcon fontSize='large' sx={{verticalAlign:"middle"}}/>
               </button>
           </div>

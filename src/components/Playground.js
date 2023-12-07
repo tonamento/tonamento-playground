@@ -3,10 +3,12 @@ import comingSoon from "../img/coming-soon.png"
 import ImageListItemBar from '@mui/material/ImageListItemBar';
 import CircleIcon from '@mui/icons-material/Circle';
 import { Modal, Paper, Box, Button, Typography, Dialog, ListItemText, ListItem, TextField } from '@mui/material';
-
+// import account from wagmi/account';
+import { useAccount } from 'wagmi';
 
 function Playground(props) {
-  const {classes, setLoadingText, setLoadingSubText, setLoadingStatus, setNeededSkeletons} = props
+  const {classes, setLoadingText, setLoadingSubText, setLoadingStatus, setNeededSkeletons} = props;
+  const {address, isConnected} = useAccount();
   const [openRoom, setOpenRoom] = useState(false);
   const [openCreateRoom, setOpenCreateRoom] = useState(false);
   const [roomName, setRoomName] = useState('');
@@ -22,19 +24,28 @@ function Playground(props) {
     socket.on('roomCreated', (data) => {
       setRooms([...rooms, data.room])
     })
+    
+    socket.on('roomReady', (data) => {
+      // go to room by url
+      setOpenCreateRoom(false)
+      setOpenRoom(false)
+      setLoadingStatus(false)
+      setNeededSkeletons(false)
+      window.location.href = `/games/${currectGame}/${data.id}`
+    })
 
-      const newPlayerHandler = (data) => {
-        setLoadingSubText(`${data.players.length + 1} / ${data.maxPlayers} players joined`);
-        socket.off('newPlayer', newPlayerHandler);
-      };
-    
-      socket.on('newPlayer', data => {
-        newPlayerHandler(data)
-      });
-    
-      return () => {
-        socket.off('newPlayer', newPlayerHandler);
-      }
+    const newPlayerHandler = (data) => {
+      setLoadingSubText(`${data.players.length + 1} / ${data.maxPlayers} players joined`);
+      socket.off('newPlayer', newPlayerHandler);
+    };
+  
+    socket.on('newPlayer', data => {
+      newPlayerHandler(data)
+    });
+  
+    return () => {
+      socket.off('newPlayer', newPlayerHandler);
+    }
   })
   
   // get rooms from server and set rooms state by socket
@@ -53,8 +64,14 @@ function Playground(props) {
   }, [socket]);
   
 
-  const handleOpenRoom = () => {
-    setOpenRoom(true);
+  const handleOpenRoom = (game) => {
+    const _currectGame = game.toLowerCase()
+    if (_currectGame.includes('coming')) {
+      alert('coming soon')
+    } else {
+      setCurrectGame(_currectGame.replace('game', '').replace('play','').replace(' ', ''))
+      setOpenRoom(true);
+    }
   };
   
   const handleCloseRoom = () => {
@@ -68,9 +85,9 @@ function Playground(props) {
         owner: socket.id,
         id:null,
         ticketPrice: roomTicketPrice,
-        players: [socket.id],
+        players: [address],
         playersJoined : 1,
-        maxPlayers: roomMaxPlayers,
+        maxPlayers: Number(roomMaxPlayers),
       }
       setOpenCreateRoom(false)
       setOpenRoom(false)
@@ -91,17 +108,22 @@ function Playground(props) {
   }
 
   const joinRoom = (roomID) => {
-    const roomData = rooms.find(room => room.id === roomID)
+    const roomData = rooms.find(room => room.id === roomID);
     setCurrectGame(roomData)
     setLoadingStatus(true)
     setLoadingSubText(`${roomData.players.length + 1} / ${roomData.maxPlayers} players joined`)
-    socket.emit('joinRoom', roomID)
+    socket.emit('joinRoom', {roomId: roomID,  'userAddress': address})
   }
 
   const games = [
     {
       image: "https://assets.fortnitecreativehq.com/wp-content/uploads/2023/01/21012853/Tic-Tac-Toe.png",
-      title: "TicTacTao Game",
+      title: "Play 2048",
+      online: "20 online"
+    },
+    {
+      image: comingSoon,
+      title: "Coming soon!",
       online: "20 online"
     },
     {
@@ -141,7 +163,7 @@ function Playground(props) {
       <div className={classes.drawerHeader} />
       <div className={classes.games}>
         {games.map((game, index) => (
-          <div key={index} className={classes.game} onClick={handleOpenRoom}
+          <div key={index} className={classes.game} onClick={() => handleOpenRoom(game.title)}
             style={{
               backgroundImage: `url(${game.image})`,
               backgroundColor: '#c3deff'

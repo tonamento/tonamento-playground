@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
+import { useParams } from "react-router-dom";
+import CelebrationIcon from '@mui/icons-material/Celebration';
 import './2048.css';
 
-const Game2048 = () => {
+const Game2048 = ({socket}) => {
+  const [message, setMessage] = useState('');
+  const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
+  const [roomPlayers, setRoomPlayers] = useState([]);
+  const {roomId} = useParams();
+
    const playground = () => {
       var gameObj = {
         points: {
@@ -276,36 +285,84 @@ const Game2048 = () => {
       //    disableSelection(document.body);
       }
    }
+
   useEffect(() => {
     playground()
   })
+
+  // get currect players from socket
+  useEffect(() => {
+    const timer = setInterval(() => {
+      socket.emit('getPlayers', roomId);
+    }, 1000);
+  
+    socket.on('getPlayers', (data) => {
+        setRoomPlayers(data)
+      })
+  
+    return () => {
+      clearInterval(timer);
+    };
+  });
+
+  const handleOpenEmojiPicker = () => {
+    if (!openEmojiPicker) { setOpenEmojiPicker(true) }
+    else {setOpenEmojiPicker(false)}
+  };
+
+
   return (
     <>
-    {/* <div className="cover"></div> */}
-        <div id="gameOver hide" style={{opacity:0}}>
-          <div className="overText">GameOver!</div>
-        </div>
-    <div className="container">
+      <div id="gameOver" className="hide" style={{ opacity: 0 }}>
+        <div className="overText">GameOver!</div>
+      </div>
+      <div className="container">
         <div id="leftSide">
-           <div id="timelineStage">
-              <p>Score : </p>
-              <p id="score">0</p>
-              <div id="addScore"></div>
-           </div>
-            <div id="usersStage"></div>
+          <div id="timelineStage">
+            <p>Score : </p>
+            <p id="score">0</p>
+            <div id="addScore"></div>
+          </div>
+          <div id="usersStage">
+            <div>
+                {/* list users in table with theire score */}
+                <ul id="playersTable">
+                    {roomPlayers.map((player) => (
+                        <li className="li-player">{`${player.substring(0, 10)}...`}</li>
+                    ))}
+                </ul>
+            </div>
+          </div>
         </div>
         <div id="stage"></div>
         <div id="rightSide">
-            <div id="chatAppActions">
-                <span>Let's go!</span>
-                <span>Haha😁</span>
-                <span>Nooooo🤬</span>
-                <span>Im winner👀</span>
-            </div>
-            <div id="chatApp"></div>
-            <input id="chatAppInput" placeholder='Send massage' />
+          <div id="chatAppActions">
+            <span>Let's go! 🔥</span>
+            <span>Haha 😁</span>
+            <span>Nooooo 🤬</span>
+            {/* <span>Im winner👀</span> */}
+          </div>
+          <div id="chatApp">
+            {openEmojiPicker && (
+                <Picker data={data} onEmojiSelect={(emoji) => setMessage(message + emoji.native)} />
+            )}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center' , height:"12%"}}>
+            <input
+                id="chatAppInput"
+                placeholder="Send message!"
+                onChange={(e) => setMessage(e.target.value)}
+                value={message}
+            />
+              <button onClick={handleOpenEmojiPicker} id={openEmojiPicker? 'chatAppEmojiBtnActive' : 'chatAppEmojiBtn'}>
+                <CelebrationIcon fontSize='large' sx={{verticalAlign:"middle"}}/>
+              </button>
+              <button onClick={handleOpenEmojiPicker}>
+                <CelebrationIcon fontSize='large' sx={{verticalAlign:"middle"}}/>
+              </button>
+          </div>
         </div>
-    </div>
+      </div>
     </>
   );
 };

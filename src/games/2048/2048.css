@@ -72,7 +72,7 @@
     -khtml-user-select: none;
     user-select: none;
     position: relative;
-    width: 400px;
+    width: 380px;
     height: 475px;
     margin: 2vw;
     margin-top: 15vh;
@@ -96,6 +96,21 @@
     padding: 10px;
     border: 2px solid #16191a;
     z-index: 1;
+}
+
+#leftSide #playersTable{
+    padding:5px 0px;
+    margin:5px 0px;
+}
+
+#leftSide .li-player{
+    padding: 10px;
+    margin:4px;
+    margin-top:5px;
+    border-radius:10px;
+    font-family:"gumdrop";
+    background: cornflowerblue;
+    list-style: none;
 }
 
 #timelineStage {
@@ -136,7 +151,7 @@
 }
 
 #chatAppActions {
-    background: #777777;
+    background: #16191a;
     border-radius: 13px;
     cursor: pointer;
     -moz-user-select: none;
@@ -144,13 +159,13 @@
     user-select: none;
     position: relative;
     display: inline-block;
-    width: 400px;
+    width: 380px;
     height: 10%;
     z-index: 1;
 }
 
 #chatAppActions span{
-    font-family: "visage", "gumdrop";
+    font-family: "gumdrop";
     display: inline-block;
     background:#0040c1;
     margin: 5px 4px;
@@ -167,23 +182,53 @@
     -khtml-user-select: none;
     user-select: none;
     position: relative;
-    width: 400px;
+    width: 380px;
     margin-top: 12px;
     height: 75%;
     z-index: 1;
 }
 
 #chatAppInput {
-  width: 95%;
+  width: 85%;
   border: none;
   border-radius: 7px;
-  height: 10%;
+  height: 80%;
   margin-top:15px;
   padding: 0px 10px;
+  margin-right:5px;
   background: #1c1b1b;
+  color: white;
+  font-size: large;
+  font-family: "avenir", "gumdrop";
 }
 
-#undo{
+#chatAppEmojiBtn {
+    width: 30px;
+    height: 30px;
+    z-index: 1;
+    margin-right: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color:white;
+    margin-right:10px;
+    transition: .5s ease;
+  }
+
+  #chatAppEmojiBtnActive {
+    transition: .5s ease;
+    width: 35px;
+    height: 35px;
+    background: transparent;
+    color:rgba(30, 218, 255, 0.777);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    z-index: 1;
+    margin-right:10px;
+  }
+
+  #undo{
     position: relative;
     z-index: 990;
 }

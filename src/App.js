@@ -9,6 +9,7 @@ import Loading from "./components/Loading";
 import io from "socket.io-client";
 import Game from './components/Game';
 import Game2048 from './games/2048/2048';
+import { useAccount } from 'wagmi';
 
 const PREFIX = 'App';
 const ENDPOINT = "http://localhost:4000";
@@ -238,6 +239,7 @@ function App() {
   const [neededSkeletons, setNeededSkeletons] = useState(true);
   const [loadingText, setLoadingText] = useState('loading playground...');
   const [loadingSubText, setLoadingSubText] = useState('');
+  const {address, isConnected} = useAccount();
   
   // save data to local storage for first user
   const isFirstUser = localStorage.getItem('needGuide');
@@ -280,14 +282,13 @@ function App() {
            <Routes> 
              {!isLoading ? (
                 <>
-                  
-                  <Route exact path='/' element={<Playground classes={classes} socket={socket} setLoadingStatus={setIsLoading} setLoadingText={setLoadingText} setLoadingSubText={setLoadingSubText} setNeededSkeletons={setNeededSkeletons}  />}></Route> 
+                  <Route exact path='/' element={<Playground classes={classes} socket={socket} userAddress={address} setLoadingStatus={setIsLoading} setLoadingText={setLoadingText} setLoadingSubText={setLoadingSubText} setNeededSkeletons={setNeededSkeletons}  />}></Route> 
                   <Route exact path='/profile' element={< UserProfile classes={classes}/>}></Route> 
                   <Route exact path='/swap' element={< Swapping classes={classes}/>}></Route> 
                  {/* Game Routing */}
                   <Route exact path="/games">
                      <Route exact path="2048">
-                        <Route exact path=":roomId" element={<Game2048 socket={socket} classes={classes}/>}/>
+                        <Route exact path=":roomId" element={<Game2048 socket={socket} classes={classes} userAddress={address} />}/>
                      </Route>
                    </Route>
                 </>

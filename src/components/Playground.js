@@ -4,11 +4,9 @@ import ImageListItemBar from '@mui/material/ImageListItemBar';
 import CircleIcon from '@mui/icons-material/Circle';
 import { Modal, Paper, Box, Button, Typography, Dialog, ListItemText, ListItem, TextField } from '@mui/material';
 // import account from wagmi/account';
-import { useAccount } from 'wagmi';
 
 function Playground(props) {
-  const {classes, setLoadingText, setLoadingSubText, setLoadingStatus, setNeededSkeletons} = props;
-  const {address, isConnected} = useAccount();
+  const {classes, setLoadingText, setLoadingSubText, setLoadingStatus, setNeededSkeletons, userAddress} = props;
   const [openRoom, setOpenRoom] = useState(false);
   const [openCreateRoom, setOpenCreateRoom] = useState(false);
   const [roomName, setRoomName] = useState('');
@@ -35,7 +33,7 @@ function Playground(props) {
     })
 
     const newPlayerHandler = (data) => {
-      setLoadingSubText(`${data.players.length + 1} / ${data.maxPlayers} players joined`);
+      setLoadingSubText(`${data.players.length} / ${data.maxPlayers} players joined`);
       socket.off('newPlayer', newPlayerHandler);
     };
   
@@ -85,7 +83,7 @@ function Playground(props) {
         owner: socket.id,
         id:null,
         ticketPrice: roomTicketPrice,
-        players: [address],
+        players: [userAddress],
         playersJoined : 1,
         maxPlayers: Number(roomMaxPlayers),
       }
@@ -112,7 +110,7 @@ function Playground(props) {
     setCurrectGame(roomData)
     setLoadingStatus(true)
     setLoadingSubText(`${roomData.players.length + 1} / ${roomData.maxPlayers} players joined`)
-    socket.emit('joinRoom', {roomId: roomID,  'userAddress': address})
+    socket.emit('joinRoom', {roomId: roomID,  'userAddress': userAddress})
   }
 
   const games = [

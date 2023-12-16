@@ -113,6 +113,17 @@
     list-style: none;
 }
 
+#leftSide .li-player-active{
+    padding: 10px;
+    margin:4px;
+    margin-top:5px;
+    border-radius:10px;
+    font-family:"gumdrop";
+    font-weight: 500;
+    background: #0040c1;
+    list-style: none;
+}
+
 #timelineStage {
     background: #16191a;
     border-radius: 13px;
@@ -138,7 +149,7 @@
 }
 
 #usersStage {
-    background: #777777;
+    background: #1c1b1b;
     border-radius: 13px;
     cursor: pointer;
     -moz-user-select: none;
@@ -149,84 +160,6 @@
     height: 80%;
     z-index: 1;
 }
-
-#chatAppActions {
-    background: #16191a;
-    border-radius: 13px;
-    cursor: pointer;
-    -moz-user-select: none;
-    -khtml-user-select: none;
-    user-select: none;
-    position: relative;
-    display: inline-block;
-    width: 380px;
-    height: 10%;
-    z-index: 1;
-}
-
-#chatAppActions span{
-    font-family: "gumdrop";
-    display: inline-block;
-    background:#0040c1;
-    margin: 5px 4px;
-    padding: 7px;
-    color:white;
-    border-radius:10px;
-}
-
-#chatApp {
-    background: #777777;
-    border-radius: 13px;
-    cursor: pointer;
-    -moz-user-select: none;
-    -khtml-user-select: none;
-    user-select: none;
-    position: relative;
-    width: 380px;
-    margin-top: 12px;
-    height: 75%;
-    z-index: 1;
-}
-
-#chatAppInput {
-  width: 85%;
-  border: none;
-  border-radius: 7px;
-  height: 80%;
-  margin-top:15px;
-  padding: 0px 10px;
-  margin-right:5px;
-  background: #1c1b1b;
-  color: white;
-  font-size: large;
-  font-family: "avenir", "gumdrop";
-}
-
-#chatAppEmojiBtn {
-    width: 30px;
-    height: 30px;
-    z-index: 1;
-    margin-right: 0;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color:white;
-    margin-right:10px;
-    transition: .5s ease;
-  }
-
-  #chatAppEmojiBtnActive {
-    transition: .5s ease;
-    width: 35px;
-    height: 35px;
-    background: transparent;
-    color:rgba(30, 218, 255, 0.777);
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    z-index: 1;
-    margin-right:10px;
-  }
 
   #undo{
     position: relative;

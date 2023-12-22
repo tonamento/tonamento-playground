@@ -10,6 +10,8 @@ import io from "socket.io-client";
 import Game2048 from './games/2048/2048';
 import { useAccount } from 'wagmi';
 import Login from './components/Login';
+import Error from './components/Error';
+import SnowFlake from './components/UIActions/snowFlake/snowFlake';
 
 const PREFIX = 'App';
 const ENDPOINT = "http://localhost:4000";
@@ -241,9 +243,11 @@ function App() {
   const [loadingSubText, setLoadingSubText] = useState('');
   const {address, isConnected} = useAccount();
   
+  // check for device is mobile or desktop
+  const isDesktop = window.innerWidth > 1024;
+
   // save data to local storage for first user
   const isGuideUser = localStorage.getItem('needGuide');
-  // if (!isGuideUser) { localStorage.setItem('needGuide', true)}
 
   useEffect(() => {
     const socket = io(ENDPOINT);
@@ -272,6 +276,7 @@ function App() {
 
   return (
     <Root className={classes.root}>
+      <SnowFlake/>
       <Header 
         open={open} 
         handleDrawerOpen={handleDrawerOpen} 
@@ -279,8 +284,9 @@ function App() {
         classes={classes} 
       />   
       <main className={open ? classes.contentShift : classes.content}>
-           <Routes> 
-             {!isLoading ? (
+           <Routes>
+            {isDesktop? (
+             !isLoading ? (
                !isGuideUser ? (
                  <>
                      <Route path='/' element={<Login isConnected={isConnected}/>}></Route> 
@@ -301,6 +307,10 @@ function App() {
                 <>
                   <Route exact path='/' element={<Loading classes={classes} text={loadingText} subText={loadingSubText} neededSkeletons={neededSkeletons}/>}></Route>
                 </>
+            )) : (
+              <>
+                <Route exact path='/' element={<Error text="You need open the app in desktop." />}></Route>
+              </>
             )}
            </Routes> 
       </main>

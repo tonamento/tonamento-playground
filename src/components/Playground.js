@@ -6,7 +6,7 @@ import { Modal, Paper, Box, Button, Typography, Dialog, ListItemText, ListItem, 
 // import account from wagmi/account';
 
 function Playground(props) {
-  const {classes, setLoadingText, setLoadingSubText, setLoadingStatus, setNeededSkeletons, userAddress} = props;
+  const {classes, setLoadingText, setLoadingSubText, setLoadingStatus, setNeededSkeletons, userAddress, isConnected} = props;
   const [openRoom, setOpenRoom] = useState(false);
   const [openCreateRoom, setOpenCreateRoom] = useState(false);
   const [roomName, setRoomName] = useState('');
@@ -61,6 +61,16 @@ function Playground(props) {
     };
   }, [socket]);
   
+  const gameTicketPrices = () => {
+     switch (currectGame) {
+       default:
+          setRoomTicketPrice(100)
+       case '2048':
+          setRoomTicketPrice(100)
+        case 'tic-tac-toe':
+           setRoomTicketPrice(100)
+     }
+  }
 
   const handleOpenRoom = (game) => {
     const _currectGame = game.toLowerCase()
@@ -75,6 +85,16 @@ function Playground(props) {
   const handleCloseRoom = () => {
     setOpenRoom(false);
   }
+
+  const handleCreateRoom = () => {
+    gameTicketPrices()
+    setOpenRoom(false)
+    setOpenCreateRoom(true)
+ }
+
+ const handleCloseCreateRoom = () => {
+   setOpenCreateRoom(false)
+ }
 
   const createRoom = () => {
       const roomData = {
@@ -95,22 +115,15 @@ function Playground(props) {
       setLoadingSubText(`1 / ${roomData.maxPlayers} players joined`)
       socket.emit('createRoom', roomData)
   }
-
-  const handleCreateRoom = () => {
-     setOpenRoom(false)
-     setOpenCreateRoom(true)
-  }
-
-  const handleCloseCreateRoom = () => {
-    setOpenCreateRoom(false)
-  }
-
+  
   const joinRoom = (roomID) => {
-    const roomData = rooms.find(room => room.id === roomID);
-    setCurrectGame(roomData)
-    setLoadingStatus(true)
-    setLoadingSubText(`${roomData.players.length + 1} / ${roomData.maxPlayers} players joined`)
-    socket.emit('joinRoom', {roomId: roomID,  'userAddress': userAddress})
+    if (isConnected) {
+      const roomData = rooms.find(room => room.id === roomID);
+      setCurrectGame(roomData)
+      setLoadingStatus(true)
+      setLoadingSubText(`${roomData.players.length + 1} / ${roomData.maxPlayers} players joined`)
+      socket.emit('joinRoom', {roomId: roomID,  'userAddress': userAddress})
+    }
   }
 
   const games = [
@@ -221,7 +234,7 @@ function Playground(props) {
                 label="Ticket Price"
                 type="number"
                 value={roomTicketPrice}
-                onChange={(e) => setRoomTicketPrice(e.target.value)}
+                disabled
               />
               <TextField
                 label="Max Players"

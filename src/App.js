@@ -7,9 +7,9 @@ import UserProfile from "./components/userProfile";
 import Swapping from "./components/Swapping";
 import Loading from "./components/Loading";
 import io from "socket.io-client";
-import Game from './components/Game';
 import Game2048 from './games/2048/2048';
 import { useAccount } from 'wagmi';
+import Login from './components/Login';
 
 const PREFIX = 'App';
 const ENDPOINT = "http://localhost:4000";
@@ -242,8 +242,8 @@ function App() {
   const {address, isConnected} = useAccount();
   
   // save data to local storage for first user
-  const isFirstUser = localStorage.getItem('needGuide');
-  if (!isFirstUser) { localStorage.setItem('needGuide', true)}
+  const isGuideUser = localStorage.getItem('needGuide');
+  // if (!isGuideUser) { localStorage.setItem('needGuide', true)}
 
   useEffect(() => {
     const socket = io(ENDPOINT);
@@ -281,18 +281,23 @@ function App() {
       <main className={open ? classes.contentShift : classes.content}>
            <Routes> 
              {!isLoading ? (
+               !isGuideUser ? (
+                 <>
+                     <Route path='/' element={<Login isConnected={isConnected}/>}></Route> 
+                 </>
+               ) : (
                 <>
-                  <Route exact path='/' element={<Playground classes={classes} socket={socket} userAddress={address} setLoadingStatus={setIsLoading} setLoadingText={setLoadingText} setLoadingSubText={setLoadingSubText} setNeededSkeletons={setNeededSkeletons}  />}></Route> 
+                  <Route exact path='/' element={<Playground classes={classes} socket={socket} userAddress={address} setLoadingStatus={setIsLoading} setLoadingText={setLoadingText} setLoadingSubText={setLoadingSubText} setNeededSkeletons={setNeededSkeletons} isConnected={isConnected} />}></Route> 
                   <Route exact path='/profile' element={< UserProfile classes={classes}/>}></Route> 
                   <Route exact path='/swap' element={< Swapping classes={classes}/>}></Route> 
-                 {/* Game Routing */}
+                 
                   <Route exact path="/games">
                      <Route exact path="2048">
-                        <Route exact path=":roomId" element={<Game2048 socket={socket} classes={classes} userAddress={address} />}/>
+                        <Route exact path=":roomId" element={<Game2048 socket={socket} classes={classes} userAddress={address}/>}/>
                      </Route>
                    </Route>
                 </>
-              ) : (
+              )) : (
                 <>
                   <Route exact path='/' element={<Loading classes={classes} text={loadingText} subText={loadingSubText} neededSkeletons={neededSkeletons}/>}></Route>
                 </>

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import Chat from '../../components/Chat';
+import Chat from '../../components/Game/Chat';
 import './2048.css';
-import '../../components/css/chatApp.css';
 import { useParams } from 'react-router-dom';
-import PlayersTable from '../../components/playersTable';
+import PlayersTable from '../../components/Game/playersTable';
 
 const Game2048 = ({socket, userAddress}) => {
   const { roomId } = useParams();
@@ -285,7 +284,7 @@ const Game2048 = ({socket, userAddress}) => {
 
   useEffect(() => {
     playground()
-  })
+  }, [])
 
   return (
     <div className='gameStage'>

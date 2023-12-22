@@ -7,8 +7,11 @@ import UserProfile from "./components/userProfile";
 import Swapping from "./components/Swapping";
 import Loading from "./components/Loading";
 import io from "socket.io-client";
-import Game from './components/Game';
 import Game2048 from './games/2048/2048';
+import { useAccount } from 'wagmi';
+import Login from './components/Login';
+import Error from './components/Error';
+import SnowFlake from './components/UIActions/snowFlake/snowFlake';
 
 const PREFIX = 'App';
 const ENDPOINT = "http://localhost:4000";
@@ -238,10 +241,13 @@ function App() {
   const [neededSkeletons, setNeededSkeletons] = useState(true);
   const [loadingText, setLoadingText] = useState('loading playground...');
   const [loadingSubText, setLoadingSubText] = useState('');
+  const {address, isConnected} = useAccount();
   
+  // check for device is mobile or desktop
+  const isDesktop = window.innerWidth > 1024;
+
   // save data to local storage for first user
-  const isFirstUser = localStorage.getItem('needGuide');
-  if (!isFirstUser) { localStorage.setItem('needGuide', true)}
+  const isGuideUser = localStorage.getItem('needGuide');
 
   useEffect(() => {
     const socket = io(ENDPOINT);
@@ -270,6 +276,7 @@ function App() {
 
   return (
     <Root className={classes.root}>
+      <SnowFlake/>
       <Header 
         open={open} 
         handleDrawerOpen={handleDrawerOpen} 
@@ -277,24 +284,33 @@ function App() {
         classes={classes} 
       />   
       <main className={open ? classes.contentShift : classes.content}>
-           <Routes> 
-             {!isLoading ? (
+           <Routes>
+            {isDesktop? (
+             !isLoading ? (
+               !isGuideUser ? (
+                 <>
+                     <Route path='/' element={<Login isConnected={isConnected}/>}></Route> 
+                 </>
+               ) : (
                 <>
-                  
-                  <Route exact path='/' element={<Playground classes={classes} socket={socket} setLoadingStatus={setIsLoading} setLoadingText={setLoadingText} setLoadingSubText={setLoadingSubText} setNeededSkeletons={setNeededSkeletons}  />}></Route> 
+                  <Route exact path='/' element={<Playground classes={classes} socket={socket} userAddress={address} setLoadingStatus={setIsLoading} setLoadingText={setLoadingText} setLoadingSubText={setLoadingSubText} setNeededSkeletons={setNeededSkeletons} isConnected={isConnected} />}></Route> 
                   <Route exact path='/profile' element={< UserProfile classes={classes}/>}></Route> 
                   <Route exact path='/swap' element={< Swapping classes={classes}/>}></Route> 
-                 {/* Game Routing */}
+                 
                   <Route exact path="/games">
                      <Route exact path="2048">
-                        <Route exact path=":roomId" element={<Game2048 socket={socket} classes={classes}/>}/>
+                        <Route exact path=":roomId" element={<Game2048 socket={socket} classes={classes} userAddress={address}/>}/>
                      </Route>
                    </Route>
                 </>
-              ) : (
+              )) : (
                 <>
                   <Route exact path='/' element={<Loading classes={classes} text={loadingText} subText={loadingSubText} neededSkeletons={neededSkeletons}/>}></Route>
                 </>
+            )) : (
+              <>
+                <Route exact path='/' element={<Error text="You need open the app in desktop." />}></Route>
+              </>
             )}
            </Routes> 
       </main>

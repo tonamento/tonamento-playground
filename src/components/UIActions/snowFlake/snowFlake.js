@@ -5,7 +5,7 @@ const SnowFlake = () => {
     const generateSnowFlake = () => {
         return (
             <div className='snowflakes'>
-                {Array.from({length: 50}, () => <div className='snowflake'></div>)}
+                {Array.from({length: 30}, () => <div className='snowflake'></div>)}
             </div>
         )
     }

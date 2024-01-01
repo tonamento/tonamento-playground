@@ -244,7 +244,7 @@ function App() {
   const {address, isConnected} = useAccount();
   
   // check for device is mobile or desktop
-  const isDesktop = window.innerWidth > 1024;
+  const isDesktop = window.innerWidth > 800;
 
   // save data to local storage for first user
   const isGuideUser = localStorage.getItem('needGuide');

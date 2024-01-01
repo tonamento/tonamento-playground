@@ -1,104 +1,250 @@
-import React, { useState } from 'react';
-import { Button, Container, FormControl, Select, MenuItem, InputLabel, TextField, Box } from '@mui/material';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Container, Typography, Box, Grid, TextField, Button, Select, MenuItem, InputLabel, FormControl, styled } from '@mui/material';
+import { useAccount, useBalance, useContractRead, usePrepareContractWrite, useContractWrite } from 'wagmi';
+import { formatEther, parseEther } from 'ethers/lib/utils';
 import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
+import { TOKENS_DATA, CONTRACT_ADDRESS, TICKET_FACTORY_ABI, TOKEN_FACTORY_ABI } from '../constants';
+
+const Root = styled('div')(({ theme }) => ({
+  '.swap-component-btn': {
+    backgroundColor: '#1976d2',
+    color: '#ffffff',
+    fontFamily: 'avenir',
+    fontSize: 18,
+    fontWeight: 700,
+    marginTop: 5,
+    width: '500px',
+    padding: '7px 0px',
+    textTransform: 'none',
+    transition: 'all 0.15s ease-in-out',
+    borderRadius: 12,
+    '&:hover': {
+      backgroundColor: '#1836d2',
+      fontSize: 20,
+    },
+  },
+  '.swap-component-h1': {
+    fontFamily: 'gumdrop',
+    fontWeight: 200,
+  },
+  '.swap-component-balance': {
+    fontFamily: 'avenir',
+    fontWeight: 200,
+    opacity: 0.25,
+    fontSize: 12,
+    marginLeft: 1,
+  },
+  '.swap-component-window': {
+    background: '#fff',
+    borderRadius: 12,
+    padding: '10px 25px 25px 20px',
+  },
+  '.coin-input-box': {
+    fontFamily: 'avenir',
+    fontWeight: 700,
+  },
+  '.css-1d3z3hw-MuiOutlinedInput-notchedOutline': {
+    borderRadius: 12,
+  },
+}));
 
 export default function SwapForm() {
+  const {address} = useAccount();
   const [fromCurrency, setFromCurrency] = useState('USDC');
   const [toCurrency, setToCurrency] = useState('TOTO');
-  const [fromAmount, setFromAmount] = useState('');
   const [toAmount, setToAmount] = useState('');
+  const [fromAmount, setFromAmount] = useState('');
+  const [hasAllowance, setHasAllowance] = useState(false);
+  const [balance, setBalance] = useState('');
+  const [transactionData, setTransactionData] = useState({
+    address: CONTRACT_ADDRESS,
+    abi: TICKET_FACTORY_ABI,
+    functionName: 'buyTicket',
+    args: []
+  });
 
-  const handleSwap = () => {
-    // Write logic for swapping from fromCurrency to toCurrency
-    // Use fromAmount and toAmount when necessary
-  };
+  const {data: usdBalance} = useBalance({
+    address:address,
+    token: TOKENS_DATA[fromCurrency]?.address, 
+    watch: true
+  })
 
-  const handleApprove = () => {
-    // Write logic for approving the swap
-  };
+  const {data: totoBalance } = useContractRead({
+      address: CONTRACT_ADDRESS,
+      abi: TICKET_FACTORY_ABI,
+      functionName: '_tickets',
+      args: [address],
+      watch: true
+  });
+  
+  const {data: allowance} = useContractRead({
+    address: TOKENS_DATA[fromCurrency]?.address,
+    abi: TOKEN_FACTORY_ABI,
+    functionName: 'allowance',
+    args: [address, CONTRACT_ADDRESS],
+    watch: true
+  })
 
-  const handleFromAmountChange = (event) => {
+  const { config } = usePrepareContractWrite(transactionData);
+  const { data: result, error, isLoading, isSuccess, write } = useContractWrite(config);
+
+  const calculateTradeRate = useCallback(() => {
+    if (fromCurrency !== 'TOTO') {
+      setBalance(parseFloat(usdBalance?.formatted).toFixed(2))
+    } else {
+      setBalance(totoBalance? formatEther(totoBalance?.toString()) : '0');
+    }
+
+    const tradeRate = fromAmount ? (fromCurrency !== 'TOTO' ? parseFloat(fromAmount) * 17.454 : parseFloat(fromAmount) / 17.23) : 0;
+    setToAmount(tradeRate.toFixed(3));
+
+    if (allowance) {
+      const formattedAllowance = formatEther(allowance.toString());
+      const numericFromAmount = Number(fromAmount);
+      setHasAllowance(numericFromAmount <= parseFloat(formattedAllowance));
+    }
+  }, [fromCurrency, toCurrency, fromAmount, usdBalance, totoBalance, allowance]);
+
+  useEffect(() => {
+    calculateTradeRate();
+  }, [calculateTradeRate]);
+
+  useEffect(() => {
+    if (config && transactionData.functionName) {
+      write?.();
+    }
+  }, [transactionData]);
+  
+  const changeTransactionData = useCallback((functionName, args) => {
+    if (functionName.includes('Ticket')) {
+      setTransactionData({
+        functionName : functionName,
+        address: CONTRACT_ADDRESS,
+        abi: TICKET_FACTORY_ABI,
+        args : args,
+      });
+    } else {
+    setTransactionData({
+      functionName : 'approve',
+      address: TOKENS_DATA[fromCurrency]?.address,
+      abi: TOKEN_FACTORY_ABI,
+      args : args,
+    });
+  }
+  }, [fromCurrency]);
+
+  const handleSwap = useCallback(() => {
+    const functionName = fromCurrency !== 'TOTO' ? 'buyTicket'  : 'sellTicket';
+    changeTransactionData(functionName, [parseEther(fromAmount).toString()])
+  }, [fromCurrency, fromAmount, changeTransactionData]);
+
+  const handleApprove = useCallback(() => {
+    changeTransactionData('approve', [CONTRACT_ADDRESS, parseEther(fromAmount).toString()])
+  }, [CONTRACT_ADDRESS, fromAmount, changeTransactionData]);
+
+  const handleFromAmountChange = useCallback((event) => {
     setFromAmount(event.target.value);
-    // Calculate and set the corresponding "toAmount" if needed
-  };
-
-  const handleToAmountChange = (event) => {
-    setToAmount(event.target.value);
-    // Calculate and set the corresponding "fromAmount" if needed
-  };
+  }, []);
 
   return (
-    <Container maxWidth="sm" sx={{height:"100vh"}}>
-      <Box mt={12} sx={{background:"#fff", borderRadius:12, padding:"10px 35px 35px 35px"}}>
-        <h1 style={{fontFamily:"gumdrop", fontWeight:200}}>
-          <CurrencyExchangeIcon sx={{verticalAlign:"middle", marginRight:1}} fontSize='large'/>
+    <Root>
+      <Container maxWidth="sm" sx={{ height: "100vh" }}>
+      <Box className="swap-component-window" mt={18}>
+        <h1 className="swap-component-h1">
+          <CurrencyExchangeIcon sx={{ verticalAlign: "middle", marginRight: 1 }} fontSize="large" />
           Swapping here!
         </h1>
-        <FormControl variant="outlined" fullWidth>
-          <InputLabel id="from-currency-label">From Currency</InputLabel>
-          <Select
-            labelId="from-currency-label"
-            id="from-currency"
-            value={fromCurrency}
-            label="From Currency"
-            onChange={(event) => setFromCurrency(event.target.value)}
-          >
-            <MenuItem value="USDC">USDC</MenuItem>
-            <MenuItem value="TOTO">TOTO</MenuItem>
-          </Select>
-        </FormControl>
-        <Box mt={2}>
-          <TextField
-            label={`Amount of ${fromCurrency}`}
-            variant="outlined"
-            type="number"
-            value={fromAmount}
-            onChange={handleFromAmountChange}
-            fullWidth
-          />
+        <Grid id="from-box" container spacing={2} sx={{marginTop:0.75}}>
+          <Grid item xs={4}>
+            <FormControl variant="outlined" fullWidth>
+              <InputLabel id="from-currency-label">From Currency</InputLabel>
+              <Select
+                labelId="from-currency-label"
+                className='coin-input-box'
+                id="from-currency"
+                sx={{borderRadius: 8}}
+                value={fromCurrency}
+                label="From Currency"
+                onChange={(event) => setFromCurrency(event.target.value)}
+              >
+                <MenuItem value="USDC">USDC</MenuItem>
+                <MenuItem value="TOTO">TOTO</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={8}>
+            <TextField
+              label={`Amount of ${fromCurrency}`}
+              variant="outlined"
+              type="number"
+              value={fromAmount}
+              onChange={handleFromAmountChange}
+              fullWidth
+            />
+          </Grid>
+        </Grid>
+        <Box mt={0.25} display="grid" justifyContent="space-between" alignItems="center" name='balance-checker' sx={{marginBottom:0.75}}>
+          <Typography className='swap-component-balance'>balance : {balance} </Typography>
         </Box>
-        <Box mt={2}>
-          <FormControl variant="outlined" fullWidth>
-            <InputLabel id="to-currency-label">To Currency</InputLabel>
-            <Select
-              labelId="to-currency-label"
-              id="to-currency"
-              value={toCurrency}
-              label="To Currency"
-              onChange={(event) => setToCurrency(event.target.value)}
-            >
-              <MenuItem value="USDC">USDC</MenuItem>
-              <MenuItem value="TOTO">TOTO</MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
-        <Box mt={2}>
-          <TextField
-            label={`Amount of ${toCurrency}`}
-            variant="outlined"
-            type="number"
-            value={toAmount}
-            onChange={handleToAmountChange}
-            fullWidth
-          />
-        </Box>
-        <Box mt={3} display="flex" justifyContent="space-between" alignItems="center">
-          <Button
-            variant="contained"
-            onClick={handleSwap}
-            style={{ backgroundColor: '#1976d2', color: '#ffffff', fontFamily:"avenir"}}
-          >
-            Confirm Swap
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleApprove}
-            style={{ backgroundColor: '#1976d2', color: '#ffffff', fontFamily:"avenir"}}
-          >
-            Approve Swap
-          </Button>
+        <Grid id="to-box" container spacing={2}>
+          <Grid item xs={4}>
+            <FormControl variant="outlined" fullWidth>
+              <InputLabel id="to-currency-label">To Currency</InputLabel>
+              <Select
+                labelId="to-currency-label"
+                className='coin-input-box'
+                id="to-currency"
+                sx={{borderRadius: 8}}
+                value={toCurrency}
+                label="To Currency"
+                onChange={(event) => setToCurrency(event.target.value)}
+              >
+                <MenuItem value="USDC">USDC</MenuItem>
+                <MenuItem value="TOTO">TOTO</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={8}>
+            <TextField
+              label={`Amount of ${toCurrency}`}
+              variant="outlined"
+              disabled
+              value={toAmount}
+              fullWidth
+            />
+          </Grid>
+        </Grid>
+        <Box mt={5} display="grid" justifyContent="space-between" alignItems="center">
+          <Button disabled={!fromAmount ||  !hasAllowance || isLoading} className='swap-component-btn' variant="contained" onClick={handleSwap}>Swap!</Button>
+          <Button disabled={hasAllowance || isLoading || fromCurrency === 'TOTO'} className='swap-component-btn' variant="contained" onClick={handleApprove}>Approve USDC</Button>
         </Box>
       </Box>
-    </Container>
+      <Box className="info-component-window" mt={18}>
+        <h1 className="swap-component-h1">
+          <CurrencyExchangeIcon sx={{ verticalAlign: "middle", marginRight: 1 }} fontSize="large" />
+          Swapping here!
+        </h1>
+        <Grid id="from-box" container spacing={2} sx={{marginTop:0.75}}>
+          <Grid item xs={4}>
+            <FormControl variant="outlined" fullWidth>
+              <InputLabel id="from-currency-label">From Currency</InputLabel>
+              <Select
+                labelId="from-currency-label"
+                className='coin-input-box'
+                id="from-currency"
+                sx={{borderRadius: 8}}
+                value={fromCurrency}
+                label="From Currency"
+                onChange={(event) => setFromCurrency(event.target.value)}
+              >
+                <MenuItem value="USDC">USDC</MenuItem>
+                <MenuItem value="TOTO">TOTO</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
+      </Box>
+    </Container>  
+  </Root>
   );
 }

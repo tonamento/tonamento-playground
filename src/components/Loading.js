@@ -4,6 +4,7 @@ import { Modal, Backdrop, CircularProgress, Typography, Button, Dialog, Box, Lin
 import {  indigo, deepPurple } from '@mui/material/colors';
 import HourglassTopIcon from '@mui/icons-material/HourglassBottom';
 import { styled, keyframes } from '@mui/system';
+import dogGif from '../img/gifs/Dog.gif';
 
 const rotate = keyframes`
   from {transform: rotate(0deg);}
@@ -33,16 +34,17 @@ const Loading = ({classes, text, neededSkeletons, subText}) => {
         )}
         <Dialog open={true} className={classes.roomsModal} maxWidth="xl">
           <Box className={classes.roomsModal} p={3} sx={{ display: 'flex', flexDirection: 'column', width: '40vw'}}>
-            <LinearProgress sx={{margin:0.1, bgcolor: deepPurple[400]}}/>
-            <LinearProgress sx={{margin:0.1, bgcolor: deepPurple[400]}}/>
-            <LinearProgress sx={{margin:0.1, bgcolor: deepPurple[400]}}/>
-            <LinearProgress sx={{margin:0.1, bgcolor: deepPurple[400]}}/>
+             <img src={dogGif} alt="Loading" style={{ width: '150px', height: '100px', display: 'block', margin: 'auto'}}/>
               <Typography variant="h5" component="div" mt={4} style={{fontFamily: 'gumdrop', textAlign: 'center'}}>
                   {text} <RotatingHourglassTopIcon sx={{verticalAlign: 'middle'}}/>
               </Typography>
               <p style={{fontFamily: 'gumdrop', textAlign: 'center'}}>
                  {subText}
               </p>
+            <LinearProgress sx={{marginBottom:0.1, bgcolor: deepPurple[400]}}/>
+            <LinearProgress sx={{marginBottom:0.1, bgcolor: deepPurple[400]}}/>
+            <LinearProgress sx={{marginBottom:0.1, bgcolor: deepPurple[400]}}/>
+            <LinearProgress sx={{marginBottom:0.1, bgcolor: deepPurple[400]}}/>
           </Box>
         </Dialog>
     </div>

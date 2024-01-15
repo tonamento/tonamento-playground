@@ -6,12 +6,20 @@ import Playground from "./components/Playground";
 import UserProfile from "./components/userProfile";
 import Swapping from "./components/Swapping";
 import Loading from "./components/Loading";
-import io from "socket.io-client";
-import Game2048 from './games/2048/2048';
-import { useAccount } from 'wagmi';
 import Login from './components/Login';
 import Error from './components/Error';
+import Game2048 from './games/2048/2048';
+import io from "socket.io-client";
+import { useAccount } from 'wagmi';
 import SnowFlake from './components/UIActions/snowFlake/snowFlake';
+
+// check for device is desktop && \
+// check is playground under maintenance
+const isDesktop = window.innerWidth > 800;
+const isUnderMaintenance = false;
+
+// save data to local storage for first user
+const isGuideUser = localStorage.getItem('needGuide');
 
 const PREFIX = 'App';
 const ENDPOINT = "http://localhost:4000";
@@ -123,7 +131,7 @@ const Root = styled('div')((
 
   [`& .${classes.content}`]: {
     flexGrow: 1,
-    padding: theme.spacing(3),
+    padding: isUnderMaintenance || !isDesktop ? theme.spacing(0) : theme.spacing(3),
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
@@ -241,13 +249,12 @@ function App() {
   const [neededSkeletons, setNeededSkeletons] = useState(true);
   const [loadingText, setLoadingText] = useState('loading playground...');
   const [loadingSubText, setLoadingSubText] = useState('');
+  const [messageInfo, setMessageInfo] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
   const {address, isConnected} = useAccount();
-  
-  // check for device is mobile or desktop
-  const isDesktop = window.innerWidth > 800;
-
-  // save data to local storage for first user
-  const isGuideUser = localStorage.getItem('needGuide');
 
   useEffect(() => {
     const socket = io(ENDPOINT);
@@ -266,6 +273,10 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+     
+  } , [messageInfo]);
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -282,10 +293,12 @@ function App() {
         handleDrawerOpen={handleDrawerOpen} 
         handleDrawerClose={handleDrawerClose} 
         classes={classes} 
+        isDesktop={isDesktop}
+        isUnderMaintenance={isUnderMaintenance}
       />   
       <main className={open ? classes.contentShift : classes.content}>
            <Routes>
-            {isDesktop? (
+            {isDesktop && !isUnderMaintenance ? (
              !isLoading ? (
                !isGuideUser ? (
                  <>
@@ -295,7 +308,7 @@ function App() {
                 <>
                   <Route exact path='/' element={<Playground classes={classes} socket={socket} userAddress={address} setLoadingStatus={setIsLoading} setLoadingText={setLoadingText} setLoadingSubText={setLoadingSubText} setNeededSkeletons={setNeededSkeletons} isConnected={isConnected} />}></Route> 
                   <Route exact path='/profile' element={< UserProfile classes={classes}/>}></Route> 
-                  <Route exact path='/swap' element={< Swapping classes={classes}/>}></Route> 
+                  <Route exact path='/swap' element={< Swapping classes={classes} setIsLoading={setIsLoading} setLoadingText={setLoadingText} setLoadingSubText={setLoadingSubText}/>}></Route> 
                  
                   <Route exact path="/games">
                      <Route exact path="2048">
@@ -309,7 +322,9 @@ function App() {
                 </>
             )) : (
               <>
-                <Route exact path='/' element={<Error text="You need open the app in desktop." />}></Route>
+                <Route exact path='/' element={
+                        <Error text={isUnderMaintenance ? 'Playground is under maintenance 🛠' : 'You need open the app in desktop.'} />
+                }></Route>
               </>
             )}
            </Routes> 

@@ -3,6 +3,8 @@ import comingSoon from "../img/coming-soon.png"
 import ImageListItemBar from '@mui/material/ImageListItemBar';
 import CircleIcon from '@mui/icons-material/Circle';
 import { Modal, Paper, Box, Button, Typography, Dialog, ListItemText, ListItem, TextField } from '@mui/material';
+import { useContract } from '../utils/contractAPI';
+import ConfirmModal from './ConfirmModal';
 // import account from wagmi/account';
 
 function Playground(props) {
@@ -13,8 +15,11 @@ function Playground(props) {
   const [roomTicketPrice, setRoomTicketPrice] = useState(0);
   const [roomMaxPlayers, setRoomMaxPlayers] = useState(0);
   const [currectGame, setCurrectGame] = useState('');
-
   const [rooms, setRooms] = useState([]);
+  const [openConfirmModal, setOpenConfirmModal] = useState(false);
+  const [userRequiredJoin, setUserRequiredJoin] = useState(false);
+  const [roomIdRequiredJoin, setRoomIdRequiredJoin] = useState(null);
+  const { write, isLoading, isSuccess, error } = useContract();
   
   const socket = props.socket
 
@@ -60,7 +65,22 @@ function Playground(props) {
       clearInterval(timer);
     };
   }, [socket]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      setOpenConfirmModal(false);
+      if (userRequiredJoin) {
+         performJoinRoom()
+      } else {
+         performRoomCreation(); // If transaction is successful, perform room creation
+      }
+    }
+  }, [isSuccess]);
   
+  const handleCostTickets = React.useCallback((amount) => {
+    write({ functionName: 'useTicket', args: [amount] });
+  }, [write]);
+
   const gameTicketPrices = () => {
      switch (currectGame) {
        default:
@@ -70,6 +90,10 @@ function Playground(props) {
         case 'tic-tac-toe':
            setRoomTicketPrice(100)
      }
+  }
+
+  const handleCloseConfirmModal = () => {
+    setOpenConfirmModal(false);
   }
 
   const handleOpenRoom = (game) => {
@@ -96,7 +120,12 @@ function Playground(props) {
    setOpenCreateRoom(false)
  }
 
-  const createRoom = () => {
+ const createRoom = () => {
+    //  show alert with confirm button
+    setOpenConfirmModal(true)
+};
+
+  const performRoomCreation = () => {
       const roomData = {
         game: currectGame,
         name: roomName,
@@ -115,14 +144,49 @@ function Playground(props) {
       setLoadingSubText(`1 / ${roomData.maxPlayers} players joined`)
       socket.emit('createRoom', roomData)
   }
-  
+
   const joinRoom = (roomID) => {
+    //  show alert with confirm button
+    setUserRequiredJoin(true)
+    setOpenConfirmModal(true)
+    setRoomIdRequiredJoin(roomID)
+  }
+  
+  const performJoinRoom = () => {
     if (isConnected) {
-      const roomData = rooms.find(room => room.id === roomID);
+      const roomData = rooms.find(room => room.id === roomIdRequiredJoin);
       setCurrectGame(roomData)
       setLoadingStatus(true)
       setLoadingSubText(`${roomData.players.length + 1} / ${roomData.maxPlayers} players joined`)
-      socket.emit('joinRoom', {roomId: roomID,  'userAddress': userAddress})
+      socket.emit('joinRoom', {roomId: roomIdRequiredJoin,  'userAddress': userAddress})
+    }
+  }
+
+  const returnConfirmModal = () => {
+    if (!userRequiredJoin) {
+      return (
+        <ConfirmModal 
+          open={openConfirmModal} 
+          method={'Create Room'} 
+          confirmName={'Pay'} 
+          onConfirm={() => handleCostTickets(roomTicketPrice * 10 ** 18)} 
+          onCancel={handleCloseConfirmModal} 
+          details={`This service costs ${roomTicketPrice} TOTO to set up a room. Do you want to continue?`} 
+          isConfirmDisabled={isLoading} 
+     />
+      )
+    } else {
+       return (
+        <ConfirmModal 
+            open={openConfirmModal} 
+            method={'Create Room'} 
+            confirmName={'Pay'} 
+            onConfirm={() => handleCostTickets(roomTicketPrice * 10 ** 18)} 
+            onCancel={handleCloseConfirmModal} 
+            details={`This costs ${roomTicketPrice} TOTO to join room. Are you sure?`} 
+            isConfirmDisabled={isLoading} 
+     />
+       )
     }
   }
 
@@ -254,6 +318,7 @@ function Playground(props) {
             </div>
           </Box>
       </Dialog>
+      {returnConfirmModal()}
     </>
   );
 }

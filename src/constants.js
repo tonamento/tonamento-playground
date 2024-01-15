@@ -9,7 +9,7 @@ export const TOKEN_FACTORY_ABI = tokenFactory;
 export const TOKENS_DATA = {
     'USDC' : {
       name: 'usd coin',
-      address: '0x43B341FBAE05D3Bfa351362d11783347E184050d',
+      address: '0x43b341fbae05d3bfa351362d11783347e184050d',
     }, 
     'USDT' : {
       name: 'usd tether',

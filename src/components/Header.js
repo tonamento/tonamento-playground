@@ -21,7 +21,7 @@ import MenuItem from '@mui/material/MenuItem';
 import logo from '../logo.png';
 
 function Header(props) {
-  const {open, classes} = props
+  const {open, classes, isDesktop, isUnderMaintenance} = props
   
   const changeDrawerOpen = () => {
     props.handleDrawerOpen(true);
@@ -39,6 +39,7 @@ function Header(props) {
             color="inherit"
             aria-label="open drawer"
             onClick={changeDrawerOpen}
+            disabled={!isDesktop ||  isUnderMaintenance? true : false}
             edge="start"
             className={open ? classes.hide : classes.menuButton}
           >
@@ -48,7 +49,10 @@ function Header(props) {
               Dashboard
           </Typography>
             <Box sx={{ flexGrow: 0, marginLeft: 'auto', display:'flex'}}>
-              <w3m-button />
+              {isDesktop ? (
+                <>
+                  <w3m-button />
+                </> ): null}
               <Tooltip title="Open settings" sx={{padding:"0px", paddingLeft:"7px"}}>
                 <IconButton>
                   <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
@@ -57,11 +61,7 @@ function Header(props) {
             </Box>
         </Toolbar>
       </AppBar>
-      <Drawer
-        className={classes.drawer}
-        variant="persistent"
-        anchor="left"
-        open={open}
+      <Drawer className={classes.drawer} variant="persistent" anchor="left" open={open}
         classes={{
           paper: classes.drawerPaper,
         }}
@@ -109,12 +109,14 @@ function Header(props) {
                 <ListItemText primary="Swap" />
               </ListItem>
           </Link>
-          <ListItem className={classes.listItem} button>
-            <ListItemIcon>
-              <ScreenShareIcon fontSize="large"/>
-            </ListItemIcon>
-            <ListItemText primary="Stream" />
-          </ListItem>
+          <Link to='/stream'>
+             <ListItem className={classes.listItem} button>
+                 <ListItemIcon>
+                    <ScreenShareIcon fontSize="large"/>
+                 </ListItemIcon>
+                 <ListItemText primary="Stream" />
+                 </ListItem>
+          </Link>
         </List>
       </Drawer>
     </>

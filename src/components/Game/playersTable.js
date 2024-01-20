@@ -11,7 +11,6 @@ const PlayersTable = ({socket, roomId, userAddress}) => {
           }, 1000);
         
           socket.on('getPlayers', (data) => {
-            console.log(data)
               setRoomPlayers(data)
             })
         

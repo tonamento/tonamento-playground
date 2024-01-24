@@ -2,11 +2,16 @@ import React, { useState, useEffect } from 'react';
 import Chat from '../../components/Game/Chat';
 import './2048.css';
 import { useParams } from 'react-router-dom';
-import PlayersTable from '../../components/Game/playersTable';
+import PlayersTable from '../../components/Game/PlayersTable';
+import CountdownProgress from '../../components/Game/CountdownProgress';
+import GameOverDialog from '../../components/Game/GameOverDialog';
 
-const Game2048 = ({ socket, userAddress }) => {
+const Game2048 = ({ socket, userAddress, playerUsername, setConfettiStatus, setMessageInfo }) => {
   const { roomId } = useParams();
   const [gameLaunched, setGameLaunched] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+  const [playerCurrentPosition, setPlayerCurrentPosition] = useState(0);
+  const [playerClaimableTokens, setPlayerClaimableTokens] = useState(0);
   const [gameState, setGameState] = useState({
     points: {
       score: 0,
@@ -15,6 +20,11 @@ const Game2048 = ({ socket, userAddress }) => {
     },
     stage: Array.from({length: 4}, (_, i) => Array.from({length: 4}, (_, j) => ({boxObj: null, position: [i, j]})))
   });
+
+  // // send points to server
+  useEffect(() => {
+    socket.emit('updatePoints', {userAddress: userAddress, points: gameState.points.score, roomId: roomId});
+  }, [gameState.points.score]);    
 
   const initStage = () => {
     const newStage = [];
@@ -38,7 +48,7 @@ const Game2048 = ({ socket, userAddress }) => {
     const emptyList = [];
     for (let row = 0; row < 4; row++) {
       for (let cell = 0; cell < 4; cell++) {
-        if (gameState.stage?.[cell]?.[row]?.boxObj == null) {
+        if (gameState.stage?.[cell]?.[row]?.boxObj === null) {
             emptyList.push(gameState.stage[cell][row]);
           }
       }
@@ -77,14 +87,14 @@ const Game2048 = ({ socket, userAddress }) => {
       for (let i = 0; i < 4; i++) {
         for (let j = 0; j < 4; j++) {
           const obj = gameState.stage[i][j];
-          const objLeft = (j == 0) ? { boxObj: { value: 0 } } : gameState.stage[i][j - 1];
-          const objRight = (j == 3) ? { boxObj: { value: 0 } } : gameState.stage[i][j + 1];
-          const objUp = (i == 0) ? { boxObj: { value: 0 } } : gameState.stage[i - 1][j];
-          const objDown = (i == 3) ? { boxObj: { value: 0 } } : gameState.stage[i + 1][j];
-          if (obj.boxObj.value == objLeft.boxObj.value
-            || obj.boxObj.value == objDown.boxObj.value
-            || obj.boxObj.value == objRight.boxObj.value
-            || obj.boxObj.value == objUp.boxObj.value) {
+          const objLeft = (j === 0) ? { boxObj: { value: 0 } } : gameState.stage[i][j - 1];
+          const objRight = (j === 3) ? { boxObj: { value: 0 } } : gameState.stage[i][j + 1];
+          const objUp = (i === 0) ? { boxObj: { value: 0 } } : gameState.stage[i - 1][j];
+          const objDown = (i === 3) ? { boxObj: { value: 0 } } : gameState.stage[i + 1][j];
+          if (obj.boxObj.value === objLeft.boxObj.value
+            || obj.boxObj.value === objDown.boxObj.value
+            || obj.boxObj.value === objRight.boxObj.value
+            || obj.boxObj.value === objUp.boxObj.value) {
             return false;
           }
         }
@@ -94,14 +104,8 @@ const Game2048 = ({ socket, userAddress }) => {
     return false;
   };
 
-  const gameOver = () => {
-    // Display game over message using a modal or custom notification component
-    // Example using a modal:
-    const modal = document.createElement('div');
-    modal.className = 'game-over-modal';
-    modal.innerHTML = '<div class="game-over-message">Game Over!</div>';
-    document.body.appendChild(modal);
-    alert('Game Over');
+  const handleGameOver = () => {
+    setGameOver(true);
   };
 
   const moveTo = (obj1, obj2) => {
@@ -119,14 +123,14 @@ const Game2048 = ({ socket, userAddress }) => {
     obj2.boxObj.domObj.innerText = obj2.boxObj.value;
     obj2.boxObj.domObj.textContent = obj2.boxObj.value;
     setGameState(prevState => ({
-      ...prevState,
-      points: {
-        ...prevState.points,
-        score: prevState.points.score + obj2.boxObj.value
-      }
-    }));
-    return obj2.boxObj.value;
-  };
+        ...prevState,
+        points: {
+          ...prevState.points,
+          score: prevState.points.score + obj2.boxObj.value
+        }
+     }));
+   return obj2.boxObj.value;
+ };
 
   const clear = (x, y) => {
     let can = 0;
@@ -183,7 +187,7 @@ const Game2048 = ({ socket, userAddress }) => {
             objInThisWay2 = gameState.stage[i][2 - j]; break;
           }
         }
-        if (objInThisWay2.boxObj && objInThisWay.boxObj.value == objInThisWay2.boxObj.value) {
+        if (objInThisWay2.boxObj && objInThisWay.boxObj.value === objInThisWay2.boxObj.value) {
           add += addTo(objInThisWay2, objInThisWay);
           clear(x, y);
           can = 1;
@@ -203,7 +207,7 @@ const Game2048 = ({ socket, userAddress }) => {
       newBox();
     }
     if (isEnd()) {
-      gameOver();
+      handleGameOver();
     }
   };
 
@@ -252,6 +256,19 @@ const Game2048 = ({ socket, userAddress }) => {
       target.onmousedown = function () { return false; };
     target.style.cursor = "default";
   };
+
+  const handleClaimRewards = () => {
+    // alret that we claimed tokens
+    setMessageInfo({
+      open: true,
+      severity: 'success',
+      message: 'Tokens Claimed Successfully!!',
+    });
+    // redirect to home page
+    setTimeout(() => {
+      window.location.href = '/';
+    }, 3000)
+  }
   
     useEffect(() => {
         //  initStage();
@@ -314,13 +331,35 @@ const Game2048 = ({ socket, userAddress }) => {
             <p id="score">{gameState.points.score}</p>
             <div id="addScore"></div>
           </div>
-          <PlayersTable roomId={roomId} socket={socket} userAddress={userAddress} />
+          <PlayersTable roomId={roomId} socket={socket} userAddress={userAddress} setPlayerCurrentPosition={setPlayerCurrentPosition}/>
         </div>
-        <div id='stage'></div>
+        <div id='stage'>
+           <CountdownProgress  
+               totalTime={60}
+               style={{
+                  width: 'inherit',
+                  height: '75px',
+                  position: 'relative',
+                  top: '102%',
+                  background: 'transparent',
+                  borderRadius: '7px',
+              }}
+              progressHeight={'100%'}
+              onComplete={handleGameOver}  />
+        </div>
         <div id="rightSide">
           <Chat roomId={roomId} socket={socket} userAddress={userAddress} />
         </div>
       </div>
+        {gameOver && <GameOverDialog
+           open={gameOver}
+           player={playerUsername}
+           points={gameState.points.score}
+           position={playerCurrentPosition}
+           onConfirm={handleClaimRewards}
+           confirmButtonText="Claim Rewards"
+           setConfettiStatus={setConfettiStatus}
+        />}
     </div>
   );
 };

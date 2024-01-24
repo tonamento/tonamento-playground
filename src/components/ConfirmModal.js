@@ -10,19 +10,19 @@ export const ConfirmModal = ({ open, onConfirm, confirmName, isConfirmDisabled, 
           <img
             src={Skeleton}
             alt="Loading"
-            style={{ width: '200px', height: '200px', display: 'block', margin: 'auto' }}
+            style={{ width: '200px', height: '200px', display: 'block', margin: 'auto', borderRadius: '20%'}}
           />
         <DialogTitle sx={{ fontFamily: 'avenir', fontWeight: 800, backgroundColor: '#1976d2', color: '#ffffff', borderRadius: 3 }}>
           {method}
         </DialogTitle>
-        <DialogContent sx={{ fontFamily: 'avenir', fontWeight: 200, backgroundColor: 'cornflowerblue', color: '#ffffff', borderRadius: 3, marginTop: 1, padding: '10px !important'}}>
+        <DialogContent sx={{ fontFamily: 'avenir', fontWeight: 200, backgroundColor: 'orangered', color: '#ffffff', borderRadius: 3, marginTop: 1, padding: '10px !important'}}>
             {details}
         </DialogContent>
         <DialogActions sx={{ display: 'inline-flex', fontFamily:'avenir', color: '#ffffff', borderRadius: 3 }}>
           <Button sx={{fontWeight:700, width:'100%', backgroundColor: 'crimson'}} onClick={onCancel} variant="contained" disabled={isConfirmDisabled} >
             Cancel
           </Button>
-          <Button sx={{fontWeight:700, width:'100%'}} onClick={onConfirm} variant="contained"  disabled={isConfirmDisabled} autoFocus>
+          <Button sx={{fontWeight:700, width:'100%', backgroundColor: 'green'}} onClick={onConfirm} variant="contained"  disabled={isConfirmDisabled} autoFocus>
               {confirmName}
           </Button>
         </DialogActions>

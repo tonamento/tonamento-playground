@@ -11,18 +11,21 @@ import Error from './components/Error';
 import Game2048 from './games/2048/2048';
 import io from "socket.io-client";
 import { useAccount } from 'wagmi';
-import SnowFlake from './components/UIActions/snowFlake/snowFlake';
+import SnowFlake from './components/UIActions/SnowFlake/SnowFlake';
+import Confetti from 'react-confetti';
+import { message } from 'antd';
 
-// check for device is desktop && \
-// check is playground under maintenance
+
+// check for device is desktop && 
 const isDesktop = window.innerWidth > 800;
+// check is playground under maintenance
 const isUnderMaintenance = false;
 
 // save data to local storage for first user
 const isGuideUser = localStorage.getItem('needGuide');
 
 const PREFIX = 'App';
-const ENDPOINT = "http://localhost:4000";
+const ENDPOINT = "http://45.83.122.228:4000";
 
 const classes = {
   root: `${PREFIX}-root`,
@@ -107,11 +110,11 @@ const Root = styled('div')((
     width:95,
     height:45,
     borderRadius:12,
-    marginRight:5,
+    marginRight:4,
     border:"none",
     backgroundColor:"#3a93ff",
     fontFamily:"avenir",
-    fontSize:17,
+    fontSize:14,
     color:"white",
     borderBottom:"1.5px solid lightsteelblue",
     transition:"0.35s",
@@ -249,6 +252,9 @@ function App() {
   const [neededSkeletons, setNeededSkeletons] = useState(true);
   const [loadingText, setLoadingText] = useState('loading playground...');
   const [loadingSubText, setLoadingSubText] = useState('');
+  const [confettiStatus, setConfettiStatus] = useState(false);
+  const [playerUsername, setPlayerUsername] = useState('');
+  const [messageApi, contextHolder] = message.useMessage()
   const [messageInfo, setMessageInfo] = useState({
     open: false,
     message: '',
@@ -274,8 +280,36 @@ function App() {
   }, []);
 
   useEffect(() => {
-     
-  } , [messageInfo]);
+     if (messageInfo.open) {
+        if (messageInfo.severity === 'success' || messageInfo.severity === 'error') {
+          messageApi.destroy();
+          messageApi.open({
+            type: messageInfo.severity,
+            content: messageInfo.message
+          })
+          setTimeout(() => {
+            setMessageInfo({ ...messageInfo, open: false });
+          }, 3000);
+        } else {
+          messageApi.destroy();
+          messageApi.open({
+            type: messageInfo.severity,
+            content: messageInfo.message,
+            duration: 0,
+          })
+        }
+      }
+  } , [messageInfo, confettiStatus]);
+
+  useEffect(() => {
+    // check if user is not guide get her username
+    const username = localStorage.getItem('username');
+    if (username !== null && username !== 'undefined') {
+      setPlayerUsername(username);
+    }
+  }, [])
+
+  const handleConfetti = () => setConfettiStatus(false);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -287,7 +321,10 @@ function App() {
 
   return (
     <Root className={classes.root}>
-      <SnowFlake/>
+      <div className="ui-action-canvas confetti-overlay">
+         {contextHolder}
+         {confettiStatus ? <Confetti width={window.innerWidth} height={window.innerHeight} onConfettiComplete={handleConfetti} recycle={false}/> : <SnowFlake/>}
+      </div>
       <Header 
         open={open} 
         handleDrawerOpen={handleDrawerOpen} 
@@ -295,6 +332,7 @@ function App() {
         classes={classes} 
         isDesktop={isDesktop}
         isUnderMaintenance={isUnderMaintenance}
+        address={address}
       />   
       <main className={open ? classes.contentShift : classes.content}>
            <Routes>
@@ -306,13 +344,12 @@ function App() {
                  </>
                ) : (
                 <>
-                  <Route exact path='/' element={<Playground classes={classes} socket={socket} userAddress={address} setLoadingStatus={setIsLoading} setLoadingText={setLoadingText} setLoadingSubText={setLoadingSubText} setNeededSkeletons={setNeededSkeletons} isConnected={isConnected} />}></Route> 
+                  <Route exact path='/' element={<Playground classes={classes} socket={socket} userAddress={address} playerUsername={playerUsername} setLoadingStatus={setIsLoading} setLoadingText={setLoadingText} setLoadingSubText={setLoadingSubText} setNeededSkeletons={setNeededSkeletons} isConnected={isConnected} setMessageInfo={setMessageInfo} />}></Route> 
                   <Route exact path='/profile' element={< UserProfile classes={classes}/>}></Route> 
-                  <Route exact path='/swap' element={< Swapping classes={classes} setIsLoading={setIsLoading} setLoadingText={setLoadingText} setLoadingSubText={setLoadingSubText}/>}></Route> 
-                 
+                  <Route exact path='/swap' element={< Swapping classes={classes} setIsLoading={setIsLoading} setLoadingText={setLoadingText} setLoadingSubText={setLoadingSubText} setMessageInfo={setMessageInfo} />}></Route> 
                   <Route exact path="/games">
                      <Route exact path="2048">
-                        <Route exact path=":roomId" element={<Game2048 socket={socket} classes={classes} userAddress={address}/>}/>
+                        <Route exact path=":roomId" element={<Game2048 socket={socket} classes={classes} userAddress={address} playerUsername={playerUsername} setConfettiStatus={setConfettiStatus} setMessageInfo={setMessageInfo} />} />
                      </Route>
                    </Route>
                 </>

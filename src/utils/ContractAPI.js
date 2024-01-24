@@ -1,4 +1,4 @@
-import { useContractWrite } from 'wagmi';
+import { useContractWrite, useContractRead } from 'wagmi';
 import { CONTRACT_ADDRESS, TICKET_FACTORY_ABI } from '../constants';
 
 export function useContract() {
@@ -10,4 +10,16 @@ export function useContract() {
       })
   
     return { write, data, isLoading, isSuccess, error };
+  }
+
+  export function useTotoBalance(address) {
+    const {data, isError, isSuccess } = useContractRead({
+      address: CONTRACT_ADDRESS,
+      abi: TICKET_FACTORY_ABI,
+      functionName: '_tickets',
+      args: [address],
+      watch: true
+  });
+    
+    return {data, isError, isSuccess }
   }

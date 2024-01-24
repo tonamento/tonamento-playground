@@ -30,7 +30,7 @@ const Root = styled('div')(({ theme }) => ({
   '.swap-component-balance': {
     fontFamily: 'avenir',
     fontWeight: 200,
-    opacity: 0.25,
+    opacity: 0.45,
     fontSize: 12,
     marginLeft: 1,
   },
@@ -48,7 +48,7 @@ const Root = styled('div')(({ theme }) => ({
   },
 }));
 
-export default function SwapForm() {
+export default function SwapForm({setMessageInfo}) {
   const {address} = useAccount();
   const [fromCurrency, setFromCurrency] = useState('USDC');
   const [toCurrency, setToCurrency] = useState('TOTO');
@@ -84,7 +84,7 @@ export default function SwapForm() {
     args: [address, CONTRACT_ADDRESS],
     watch: true
   })
-
+  
   const { config } = usePrepareContractWrite(transactionData);
   const { data: result, error, isLoading, isSuccess, write } = useContractWrite(config);
 
@@ -104,6 +104,32 @@ export default function SwapForm() {
       setHasAllowance(numericFromAmount <= parseFloat(formattedAllowance));
     }
   }, [fromCurrency, toCurrency, fromAmount, usdBalance, totoBalance, allowance]);
+  
+  useEffect(() => {
+    if (isLoading) {
+      setMessageInfo({
+        open: true,
+        severity: 'loading',
+        message: 'Transaction is being processed...',
+      });
+    }
+
+    if (isSuccess) {
+      setMessageInfo({
+        open: true,
+        severity: 'success',
+        message: 'Transaction was successfully executed!',
+      });
+    }
+
+    if (error) {
+      setMessageInfo({
+        open: true,
+        severity: 'error',
+        message: 'Transaction failed! error:' + error.message.slice(0, 100),
+      });
+    }
+  }, [isLoading, isSuccess, error]);
 
   useEffect(() => {
     calculateTradeRate();
@@ -133,10 +159,34 @@ export default function SwapForm() {
   }
   }, [fromCurrency]);
 
-  const handleSwap = useCallback(() => {
-    const functionName = fromCurrency !== 'TOTO' ? 'buyTicket'  : 'sellTicket';
-    changeTransactionData(functionName, [parseEther(fromAmount).toString()])
-  }, [fromCurrency, fromAmount, changeTransactionData]);
+  const handleSwap = useCallback(async () => {
+    try {
+      // First, attempt to approve if not enough allowance
+      if (!hasAllowance) {
+        await handleApprove();
+      }
+  
+      // Check again if there is enough allowance after attempting approval
+      if (hasAllowance) {
+        const functionName = fromCurrency !== 'TOTO' ? 'buyTicket' : 'sellTicket';
+        changeTransactionData(functionName, [parseEther(fromAmount).toString()]);
+      } else {
+        // Handle case where approval was not successful
+        setMessageInfo({
+          open: true,
+          severity: 'error',
+          message: 'Approval transaction failed. Please try again.',
+        });
+      }
+    } catch (error) {
+      // Handle any error during approval or swap transaction
+      setMessageInfo({
+        open: true,
+        severity: 'error',
+        message: 'Transaction failed! error:' + error.message.slice(0, 100),
+      });
+    }
+  }, [fromCurrency, fromAmount, hasAllowance, changeTransactionData]);  
 
   const handleApprove = useCallback(() => {
     changeTransactionData('approve', [CONTRACT_ADDRESS, parseEther(fromAmount).toString()])
@@ -154,7 +204,10 @@ export default function SwapForm() {
           <CurrencyExchangeIcon sx={{ verticalAlign: "middle", marginRight: 1 }} fontSize="large" />
           Swapping here!
         </h1>
-        <Grid id="from-box" container spacing={2} sx={{marginTop:0.75}}>
+        <Box display="grid" justifyContent="space-between" alignItems="center" name='balance-checker' mt={0.75}>
+          <Typography className='swap-component-balance'>balance : {balance} </Typography>
+        </Box>
+        <Grid id="from-box" container spacing={2} mt={0.25}>
           <Grid item xs={4}>
             <FormControl variant="outlined" fullWidth>
               <InputLabel id="from-currency-label">From Currency</InputLabel>
@@ -172,7 +225,7 @@ export default function SwapForm() {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={8}>
+           <Grid item xs={8}>
             <TextField
               label={`Amount of ${fromCurrency}`}
               variant="outlined"
@@ -183,10 +236,7 @@ export default function SwapForm() {
             />
           </Grid>
         </Grid>
-        <Box mt={0.25} display="grid" justifyContent="space-between" alignItems="center" name='balance-checker' sx={{marginBottom:0.75}}>
-          <Typography className='swap-component-balance'>balance : {balance} </Typography>
-        </Box>
-        <Grid id="to-box" container spacing={2}>
+        <Grid id="to-box" container spacing={2} mt={0.5}>
           <Grid item xs={4}>
             <FormControl variant="outlined" fullWidth>
               <InputLabel id="to-currency-label">To Currency</InputLabel>

@@ -6,7 +6,7 @@ import CelebrationIcon from '@mui/icons-material/Celebration';
 import TelegramIcon from '@mui/icons-material/Telegram';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 import { Chip, Grid, Typography , Avatar, Skeleton} from '@mui/material';
-import './css/chatApp.css';
+import './css/ChatApp.css';
 
 
 
@@ -76,7 +76,7 @@ const Chat = ({socket, userAddress, roomId}) => {
                                 </>
                                 ) : (
                                   <>
-                                    <Chip className="ml-3" avatar={<Avatar style={{padding:15+"px", margin:5}}>test</Avatar>} label={val.message} color="secondary"  sx={{height: 'auto', minHeight:50+'px',   '& .MuiChip-label': {     display: 'block',     whiteSpace: 'normal',   }, }}/>
+                                    <Chip className="ml-3" avatar={<Avatar style={{padding:17+"px", margin:5}}>{val.username}</Avatar>} label={val.message} color="secondary"  sx={{height: 'auto', minHeight:50+'px',   '& .MuiChip-label': {     display: 'block',     whiteSpace: 'normal',   }, }}/>
                                     <p style={{fontSize:"12px", margin:"1px" ,marginLeft:"25px"}}>{val.time}</p>
                                   </>
                                 )}

@@ -78,20 +78,20 @@ const Login = ({isConnected}) => {
       case 0:
         return (
           <div >
-            <Typography sx={{ fontFamily: 'gumdrop', fontWeight: 200 }}>
+            <Typography sx={{ fontFamily: 'avenir', fontWeight: 400 }}>
               Welcome to Tonamento Playground, you need connect your wallet for the next step.
             </Typography>
             {isConnected? 
               <>
-                 <Button onClick={() => open()} sx={{ fontFamily: 'gumdrop', fontWeight: 200, width: '100%', marginTop: 5.25}} variant='contained' color='primary'>
+                 <Button onClick={() => open()} sx={{ fontFamily: 'avenir', fontWeight: 400, width: '100%', marginTop: 5.25}} variant='contained' color='primary'>
                    Connected
                  </Button>
-                <Button onClick={() => setCurrectStep(1)} sx={{ fontFamily: 'gumdrop', fontWeight: 200, width: '100%', marginTop: 1}} variant='contained' color='success'>
+                <Button onClick={() => setCurrectStep(1)} sx={{ fontFamily: 'avenir', fontWeight: 400, width: '100%', marginTop: 1}} variant='contained' color='success'>
                     Continue
                 </Button>
             </>
                 :        
-                <Button onClick={() => open()} sx={{ fontFamily: 'gumdrop', fontWeight: 200, width: '100%', marginTop: 5.25}} variant='contained' color='primary'>
+                <Button onClick={() => open()} sx={{ fontFamily: 'avenir', fontWeight: 400, width: '100%', marginTop: 5.25}} variant='contained' color='primary'>
                     Connect Wallet
                 </Button>      
               }
@@ -100,7 +100,7 @@ const Login = ({isConnected}) => {
       case 1:
         return (
           <div>
-            <Typography variant="h7" sx={{ fontFamily: 'gumdrop', fontWeight: 200 }}>
+            <Typography variant="h7" sx={{ fontFamily: 'avenir', fontWeight: 400 }}>
               Your username will be publicly displayed to other players.
             </Typography>
               <TextField
@@ -112,7 +112,7 @@ const Login = ({isConnected}) => {
                 fullWidth
                 onChange={handleInputChange}
               />
-              <Button onClick={() => setCurrectStep(2)} sx={{ fontFamily: 'gumdrop', fontWeight: 200, width: '100%', marginTop: 5.25}} variant='contained' color='primary'>
+              <Button onClick={() => setCurrectStep(2)} sx={{ fontFamily: 'avenir', fontWeight: 400, width: '100%', marginTop: 5.25}} variant='contained' color='primary'>
                    Submit
               </Button>     
           </div>
@@ -120,10 +120,10 @@ const Login = ({isConnected}) => {
      case 2:
         return (
           <div>
-            <Typography variant="h4" sx={{ fontFamily: 'gumdrop', fontWeight: 200 }}>
-               Welcome to our playground!
+            <Typography variant="h5" sx={{ fontFamily: 'avenir', fontWeight: 400, textAlign: 'center' }}>
+               Welcome to our playground! ✨
             </Typography>  
-            <Button onClick={finishLogin} sx={{ fontFamily: 'gumdrop', fontWeight: 200, width: '100%', marginTop: 5.25}} variant='contained' color='primary'>
+            <Button onClick={finishLogin} sx={{ fontFamily: 'avenir', fontWeight: 400, width: '100%', marginTop: 5.25}} variant='contained' color='primary'>
                    Gooo!
             </Button>     
           </div>

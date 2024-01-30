@@ -25,7 +25,8 @@ const isUnderMaintenance = false;
 const isGuideUser = localStorage.getItem('needGuide');
 
 const PREFIX = 'App';
-const ENDPOINT = "http://45.83.122.228:4000";
+// const ENDPOINT = "http://45.83.122.228:4000";
+const ENDPOINT = "http://127.0.0.1:4000";
 
 const classes = {
   root: `${PREFIX}-root`,

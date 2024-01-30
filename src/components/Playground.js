@@ -3,7 +3,7 @@ import comingSoon from "../img/coming-soon.png"
 import ImageListItemBar from '@mui/material/ImageListItemBar';
 import CircleIcon from '@mui/icons-material/Circle';
 import { Modal, Paper, Box, Button, Typography, Dialog, ListItemText, ListItem, TextField } from '@mui/material';
-import { useContract } from '../utils/ContractAPI';
+import { useTicketContract } from '../utils/ContractAPI';
 import ConfirmModal from './ConfirmModal';
 import game2048 from '../img/games/2048.png';
 // import account from wagmi/account';
@@ -63,7 +63,7 @@ function Playground(props) {
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
   const [userRequiredJoin, setUserRequiredJoin] = useState(false);
   const [roomIdRequiredJoin, setRoomIdRequiredJoin] = useState(null);
-  const { write, isLoading, isSuccess, error } = useContract();
+  const { write, isLoading, isSuccess, error } = useTicketContract('useTicket', []);
 
   const socket = props.socket
 
@@ -294,7 +294,9 @@ function Playground(props) {
                   <ListItemText primary={<Typography variant="h6" style={{fontFamily: 'gumdrop'}}>{room.name}</Typography>} />
                   <ListItemText primary={<Typography variant="h6" style={{fontFamily: 'gumdrop'}}>{room.playersJoined}/{room.maxPlayers} Joined</Typography>} />
                   <ListItemText primary={<Typography variant="h6" style={{fontFamily: 'gumdrop'}}>{room.ticketPrice}</Typography>} />
-                  <Button onClick={() => joinRoom(room.id)} variant="contained" sx={{marginLeft:"auto",background:"gold", borderRadius:"10px", fontWeight:800, color:"black"}}>Join</Button>
+                  <Button disabled={room.playersJoined >= room.maxPlayers} onClick={() => joinRoom(room.id)} variant="contained" sx={{marginLeft:"auto",background: `${room.playersJoined >= room.maxPlayers ? "gray" : "green"}`, borderRadius:"10px", fontWeight:800, color:"black"}}>
+                     {room.playersJoined >= room.maxPlayers ? "Full" : "Join"}
+                  </Button>
             </ListItem>)
             ) : (
               <ListItem sx={{background:"gold", borderRadius:"10px", marginBottom:0.1}} button>

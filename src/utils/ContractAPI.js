@@ -1,16 +1,28 @@
 import { useContractWrite, useContractRead } from 'wagmi';
-import { CONTRACT_ADDRESS, TICKET_FACTORY_ABI } from '../constants';
+import { CONTRACT_ADDRESS, TICKET_FACTORY_ABI, TOKEN_FACTORY_ABI } from '../constants';
 
-export function useContract() {
+export function useTicketContract(functionName, args) {
     const { write, data, isLoading, isSuccess, error } = useContractWrite({
         address: CONTRACT_ADDRESS,
         abi: TICKET_FACTORY_ABI,
-        functionName: 'useTicket',
-        args: []
+        functionName: functionName,
+        args: args
       })
   
     return { write, data, isLoading, isSuccess, error };
   }
+
+  export function useTokenContract(tokenAddress, args) {
+    const { write, data, isLoading, isSuccess, error } = useContractWrite({
+        address: tokenAddress,
+        abi: TOKEN_FACTORY_ABI,
+        functionName: 'approve',
+        args: args
+      })
+  
+    return { write, data, isLoading, isSuccess, error };
+  }
+
 
   export function useTotoBalance(address) {
     const {data, isError, isSuccess } = useContractRead({

@@ -2,7 +2,7 @@
 import ticketFactory from './abi/ticketFactory.json';
 import tokenFactory from './abi/tokenFactory.json';
 
-export const CONTRACT_ADDRESS = "0x9F8a8CD1FF9fd49EE33aE458b897D0B77da2Ca85";
+export const CONTRACT_ADDRESS = "0x9D10755e825a0e5827cb75158E986CEE3fBC696D";
 export const TICKET_FACTORY_ABI = ticketFactory;
 export const TOKEN_FACTORY_ABI = tokenFactory;
 

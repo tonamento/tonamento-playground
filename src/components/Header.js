@@ -100,7 +100,7 @@ function Header(props) {
               <ListItemIcon>
                 <Person fontSize="large"/>
               </ListItemIcon>
-              <ListItemText primary="Overly" />
+              <ListItemText primary="Overview" />
             </ListItem>
           </Link>
           <Link style={linkStyle} to='/profile'>

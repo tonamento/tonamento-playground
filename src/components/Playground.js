@@ -3,24 +3,68 @@ import comingSoon from "../img/coming-soon.png"
 import ImageListItemBar from '@mui/material/ImageListItemBar';
 import CircleIcon from '@mui/icons-material/Circle';
 import { Modal, Paper, Box, Button, Typography, Dialog, ListItemText, ListItem, TextField } from '@mui/material';
-import { useContract } from '../utils/contractAPI';
+import { useTicketContract } from '../utils/ContractAPI';
 import ConfirmModal from './ConfirmModal';
+import game2048 from '../img/games/2048.png';
 // import account from wagmi/account';
 
+const games = [
+  {
+    image: game2048,
+    title: "Play 2048",
+    online: "20 online"
+  },
+  {
+    image: comingSoon,
+    title: "Coming soon!",
+    online: "20 online"
+  },
+  {
+    image: comingSoon,
+    title: "Coming soon!",
+    online: "20 online"
+  },
+  {
+    image: comingSoon,
+    title: "Coming soon!",
+    online: "20 online"
+  },
+  {
+    image: comingSoon,
+    title: "Coming soon!",
+    online: "20 online"
+  },
+  {
+    image: comingSoon,
+    title: "Coming soon!",
+    online: "20 online"
+  },
+  {
+    image: comingSoon,
+    title: "Coming soon!",
+    online: "20 online"
+  },
+  {
+    image: comingSoon,
+    title: "Coming soon!",
+    online: "20 online"
+  }
+];
+
 function Playground(props) {
-  const {classes, setLoadingText, setLoadingSubText, setLoadingStatus, setNeededSkeletons, userAddress, isConnected} = props;
+  const {classes, setLoadingText, setLoadingSubText, setLoadingStatus, setNeededSkeletons, setMessageInfo, userAddress, isConnected, playerUsername} = props;
   const [openRoom, setOpenRoom] = useState(false);
   const [openCreateRoom, setOpenCreateRoom] = useState(false);
   const [roomName, setRoomName] = useState('');
   const [roomTicketPrice, setRoomTicketPrice] = useState(0);
-  const [roomMaxPlayers, setRoomMaxPlayers] = useState(0);
+  const [roomMaxPlayers, setRoomMaxPlayers] = useState(2);
   const [currectGame, setCurrectGame] = useState('');
   const [rooms, setRooms] = useState([]);
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
   const [userRequiredJoin, setUserRequiredJoin] = useState(false);
   const [roomIdRequiredJoin, setRoomIdRequiredJoin] = useState(null);
-  const { write, isLoading, isSuccess, error } = useContract();
-  
+  const { write, isLoading, isSuccess, error } = useTicketContract('useTicket', []);
+
   const socket = props.socket
 
   useEffect (() => {
@@ -69,13 +113,35 @@ function Playground(props) {
   useEffect(() => {
     if (isSuccess) {
       setOpenConfirmModal(false);
+      setMessageInfo({
+        open: true,
+        message: 'Transaction was successfully!',
+        severity: 'success'
+      })
       if (userRequiredJoin) {
          performJoinRoom()
       } else {
          performRoomCreation(); // If transaction is successful, perform room creation
       }
     }
-  }, [isSuccess]);
+
+    if (error) {
+      setMessageInfo({
+        open: true,
+        message: "Transaction failed! error :" + error.message.slice(0, 100) + '...',
+        severity: 'error'
+      })
+    }
+  
+    if (isLoading) {
+      setMessageInfo({
+        open: true,
+        message: 'Transaction in progress...',
+        severity: 'loading'
+      })
+    }
+
+  }, [isSuccess, isLoading, error]);
   
   const handleCostTickets = React.useCallback((amount) => {
     write({ functionName: 'useTicket', args: [amount] });
@@ -125,17 +191,18 @@ function Playground(props) {
     setOpenConfirmModal(true)
 };
 
-  const performRoomCreation = () => {
-      const roomData = {
-        game: currectGame,
-        name: roomName,
-        owner: socket.id,
-        id:null,
-        ticketPrice: roomTicketPrice,
-        players: [userAddress],
-        playersJoined : 1,
-        maxPlayers: Number(roomMaxPlayers),
-      }
+ const performRoomCreation = () => {
+    const roomData = {
+      game: currectGame,
+      name: roomName,
+      owner: socket.id,
+      id:null,
+      ticketPrice: roomTicketPrice,
+      players: [userAddress],
+      playersInfo : [{ userAddress: userAddress, username:playerUsername}],
+      playersJoined : 1,
+      maxPlayers: Number(roomMaxPlayers),
+    }
       setOpenCreateRoom(false)
       setOpenRoom(false)
       setLoadingStatus(true)
@@ -143,14 +210,14 @@ function Playground(props) {
       setLoadingText('Waiting for joining players...')
       setLoadingSubText(`1 / ${roomData.maxPlayers} players joined`)
       socket.emit('createRoom', roomData)
-  }
+}
 
   const joinRoom = (roomID) => {
     //  show alert with confirm button
     setUserRequiredJoin(true)
     setOpenConfirmModal(true)
     setRoomIdRequiredJoin(roomID)
-  }
+}
   
   const performJoinRoom = () => {
     if (isConnected) {
@@ -158,7 +225,7 @@ function Playground(props) {
       setCurrectGame(roomData)
       setLoadingStatus(true)
       setLoadingSubText(`${roomData.players.length + 1} / ${roomData.maxPlayers} players joined`)
-      socket.emit('joinRoom', {roomId: roomIdRequiredJoin,  'userAddress': userAddress})
+      socket.emit('joinRoom', {roomId: roomIdRequiredJoin,  'userAddress': userAddress, 'points': 0, 'username': playerUsername});
     }
   }
 
@@ -168,7 +235,7 @@ function Playground(props) {
         <ConfirmModal 
           open={openConfirmModal} 
           method={'Create Room'} 
-          confirmName={'Pay'} 
+          confirmName={'Pay it!'} 
           onConfirm={() => handleCostTickets(roomTicketPrice * 10 ** 18)} 
           onCancel={handleCloseConfirmModal} 
           details={`This service costs ${roomTicketPrice} TOTO to set up a room. Do you want to continue?`} 
@@ -179,59 +246,16 @@ function Playground(props) {
        return (
         <ConfirmModal 
             open={openConfirmModal} 
-            method={'Create Room'} 
-            confirmName={'Pay'} 
+            method={'Join Room'} 
+            confirmName={'Pay it!'} 
             onConfirm={() => handleCostTickets(roomTicketPrice * 10 ** 18)} 
             onCancel={handleCloseConfirmModal} 
-            details={`This costs ${roomTicketPrice} TOTO to join room. Are you sure?`} 
+            details={`To join this room, you need to pay 100 TOTO. Are you sure?`} 
             isConfirmDisabled={isLoading} 
      />
        )
     }
   }
-
-  const games = [
-    {
-      image: "https://assets.fortnitecreativehq.com/wp-content/uploads/2023/01/21012853/Tic-Tac-Toe.png",
-      title: "Play 2048",
-      online: "20 online"
-    },
-    {
-      image: comingSoon,
-      title: "Coming soon!",
-      online: "20 online"
-    },
-    {
-      image: comingSoon,
-      title: "Coming soon!",
-      online: "20 online"
-    },
-    {
-      image: comingSoon,
-      title: "Coming soon!",
-      online: "20 online"
-    },
-    {
-      image: comingSoon,
-      title: "Coming soon!",
-      online: "20 online"
-    },
-    {
-      image: comingSoon,
-      title: "Coming soon!",
-      online: "20 online"
-    },
-    {
-      image: comingSoon,
-      title: "Coming soon!",
-      online: "20 online"
-    },
-    {
-      image: comingSoon,
-      title: "Coming soon!",
-      online: "20 online"
-    }
-  ];
 
   return (
     <>
@@ -270,7 +294,9 @@ function Playground(props) {
                   <ListItemText primary={<Typography variant="h6" style={{fontFamily: 'gumdrop'}}>{room.name}</Typography>} />
                   <ListItemText primary={<Typography variant="h6" style={{fontFamily: 'gumdrop'}}>{room.playersJoined}/{room.maxPlayers} Joined</Typography>} />
                   <ListItemText primary={<Typography variant="h6" style={{fontFamily: 'gumdrop'}}>{room.ticketPrice}</Typography>} />
-                  <Button onClick={() => joinRoom(room.id)} variant="contained" sx={{marginLeft:"auto",background:"gold", borderRadius:"10px", fontWeight:800, color:"black"}}>Join</Button>
+                  <Button disabled={room.playersJoined >= room.maxPlayers} onClick={() => joinRoom(room.id)} variant="contained" sx={{marginLeft:"auto",background: `${room.playersJoined >= room.maxPlayers ? "gray" : "green"}`, borderRadius:"10px", fontWeight:800, color:"black"}}>
+                     {room.playersJoined >= room.maxPlayers ? "Full" : "Join"}
+                  </Button>
             </ListItem>)
             ) : (
               <ListItem sx={{background:"gold", borderRadius:"10px", marginBottom:0.1}} button>
@@ -301,11 +327,17 @@ function Playground(props) {
                 disabled
               />
               <TextField
-                label="Max Players"
-                type="number"
-                value={roomMaxPlayers}
-                onChange={(e) => setRoomMaxPlayers(e.target.value)}
-                sx={{marginLeft: 3}}
+                 label="Max Players"
+                 type="number"
+                 value={roomMaxPlayers}
+                 onChange={(e) => setRoomMaxPlayers(e.target.value)}
+                 sx={{marginLeft: 3}}
+                 inputProps={{
+                   pattern: "[358]$",
+                   inputMode: "numeric",
+                   min: 2,
+                 }}
+                 error={roomMaxPlayers < 2 || roomMaxPlayers > 8}
               />
               <br />
               <div style={{marginTop: 20}}>

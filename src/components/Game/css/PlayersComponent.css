@@ -1,0 +1,63 @@
+/* PlayersComponent.css */
+
+@keyframes colorChange {
+    0%,
+    100% {
+        color: #000; /* Your default text color */
+    }
+    50% {
+        color: blue; /* Temporary highlight color */
+    }
+}
+
+.li-player-active p {
+    animation: colorChange 2s; /* The duration can be changed */
+}
+
+.li-player {
+    transition: all 0.3s ease-in-out; /* Transition for sorting effect */
+}
+
+.medal {
+    margin-right: 10px; /* Adjust the right margin as needed for visual distance */
+    vertical-align: middle; /* Align the medal with the middle of the text */
+    padding: 3px 2.5px;
+    border-radius: 50%;
+    border-bottom: 3px solid rgb(80, 49, 255);
+    border-left: 1.5px solid rgba(255, 255, 255, 0.75);
+    border-right: 1.5px solid rgba(255, 255, 255, 0.75);
+    background-color: rgba(0, 0, 0, 0.348);
+}
+
+#leftSide #playersTable{
+    padding:5px 0px;
+    margin:5px 0px;
+ }
+ 
+#leftSide .li-player{
+  padding: 10px;
+  margin:4px;
+  margin-top:5px;
+  border-radius:10px;
+  font-family:"gumdrop";
+  background: rgb(0, 221, 255);
+  /* background: rgb(77, 0, 171); */
+  list-style: none;
+}
+ 
+#leftSide .li-player-active{
+   padding: 10px;
+   margin:4px;
+   margin-top:5px;
+   border-radius:10px;
+   font-family:"gumdrop";
+   font-weight: 500;
+   background: #08ff98;
+   /* background: #0040C1; */
+   list-style: none;
+}
+ 
+.player-info {
+    color: #212121;
+    font-weight: 200;
+}

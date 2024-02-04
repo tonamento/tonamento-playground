@@ -4,6 +4,7 @@ import { useAccount, useBalance, useContractRead, usePrepareContractWrite, useCo
 import { formatEther, parseEther } from 'ethers/lib/utils';
 import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
 import { TOKENS_DATA, CONTRACT_ADDRESS, TICKET_FACTORY_ABI, TOKEN_FACTORY_ABI } from '../constants';
+import { useTokenContract, useTicketContract } from '../utils/ContractAPI';
 
 const Root = styled('div')(({ theme }) => ({
   '.swap-component-btn': {
@@ -30,7 +31,7 @@ const Root = styled('div')(({ theme }) => ({
   '.swap-component-balance': {
     fontFamily: 'avenir',
     fontWeight: 200,
-    opacity: 0.25,
+    opacity: 0.45,
     fontSize: 12,
     marginLeft: 1,
   },
@@ -48,7 +49,8 @@ const Root = styled('div')(({ theme }) => ({
   },
 }));
 
-export default function SwapForm() {
+
+export default function SwapForm({setMessageInfo}) {
   const {address} = useAccount();
   const [fromCurrency, setFromCurrency] = useState('USDC');
   const [toCurrency, setToCurrency] = useState('TOTO');
@@ -56,12 +58,7 @@ export default function SwapForm() {
   const [fromAmount, setFromAmount] = useState('');
   const [hasAllowance, setHasAllowance] = useState(false);
   const [balance, setBalance] = useState('');
-  const [transactionData, setTransactionData] = useState({
-    address: CONTRACT_ADDRESS,
-    abi: TICKET_FACTORY_ABI,
-    functionName: 'buyTicket',
-    args: []
-  });
+  const [approvalConfirmed, setApprovalConfirmed] = useState(false);
 
   const {data: usdBalance} = useBalance({
     address:address,
@@ -84,166 +81,167 @@ export default function SwapForm() {
     args: [address, CONTRACT_ADDRESS],
     watch: true
   })
-
-  const { config } = usePrepareContractWrite(transactionData);
-  const { data: result, error, isLoading, isSuccess, write } = useContractWrite(config);
+  
+  console.log(allowance)
+  
+  const { write: tradeTicket, isLoading: isSwapping, isSuccess: isSwapSuccess, error: isSwapError} = useTicketContract(fromCurrency !== 'TOTO' ? 'buyTicket' : 'sellTicket', [fromAmount? parseEther(fromAmount.toString()) : null]);
+  const { write: approveToken, isLoading: isApproving, isSuccess: isApproveSuccess, error: isApproveError} = useTokenContract(TOKENS_DATA[fromCurrency]?.address, [CONTRACT_ADDRESS, usdBalance? parseEther(usdBalance?.formatted.toString()) : null]);
 
   const calculateTradeRate = useCallback(() => {
+    const localStorageAllowance = localStorage.getItem('allowance');
+    const formattedAllowance = allowance? formatEther(allowance?.toString()) : parseFloat(localStorageAllowance) || 0;
+    const numericFromAmount = Number(fromAmount);
+
+
     if (fromCurrency !== 'TOTO') {
       setBalance(parseFloat(usdBalance?.formatted).toFixed(2))
     } else {
       setBalance(totoBalance? formatEther(totoBalance?.toString()) : '0');
     }
 
+
     const tradeRate = fromAmount ? (fromCurrency !== 'TOTO' ? parseFloat(fromAmount) * 17.454 : parseFloat(fromAmount) / 17.23) : 0;
     setToAmount(tradeRate.toFixed(3));
 
+
     if (allowance) {
-      const formattedAllowance = formatEther(allowance.toString());
-      const numericFromAmount = Number(fromAmount);
       setHasAllowance(numericFromAmount <= parseFloat(formattedAllowance));
+      localStorage.setItem('allowance', formattedAllowance);
     }
   }, [fromCurrency, toCurrency, fromAmount, usdBalance, totoBalance, allowance]);
+  
+  useEffect(() => {
+    if (isSwapSuccess || isApproveSuccess) {
+      setMessageInfo({
+        open: true,
+        severity: 'success',
+        message: 'Transaction was successfully executed!',
+      });
+    }
+
+    if (isSwapping || isApproving) {
+      // show loading
+      setMessageInfo({
+        open: true,
+        severity: 'loading',
+        message: `${isSwapping ? 'Swapping' : 'Approving'} transaction is being processed...`,
+      });
+    }
+
+    if (isSwapError || isApproveError) {
+      setMessageInfo({
+        open: true,
+        severity: 'error',
+        message: 'Transaction failed! error:' + isSwapError?.message.slice(100) || isApproveError?.message.slice(100),
+      });
+    }
+    
+    // if approval is successful and hasn't already been confirmed, swap transaction will be triggered
+    if (isApproveSuccess && !approvalConfirmed) {
+      setApprovalConfirmed(true);
+      setMessageInfo({
+        open: true,
+        severity: 'loading',
+        message: `Waiting for ${fromCurrency} swap transaction to be confirmed...`,
+      });
+      setTimeout(() => {
+         tradeTicket();
+      }, 8000)
+    }
+
+  }, [isSwapping, isApproving, isSwapSuccess, isApproveSuccess, isSwapError, isApproveError]);
 
   useEffect(() => {
     calculateTradeRate();
   }, [calculateTradeRate]);
 
-  useEffect(() => {
-    if (config && transactionData.functionName) {
-      write?.();
-    }
-  }, [transactionData]);
-  
-  const changeTransactionData = useCallback((functionName, args) => {
-    if (functionName.includes('Ticket')) {
-      setTransactionData({
-        functionName : functionName,
-        address: CONTRACT_ADDRESS,
-        abi: TICKET_FACTORY_ABI,
-        args : args,
-      });
-    } else {
-    setTransactionData({
-      functionName : 'approve',
-      address: TOKENS_DATA[fromCurrency]?.address,
-      abi: TOKEN_FACTORY_ABI,
-      args : args,
-    });
-  }
-  }, [fromCurrency]);
-
-  const handleSwap = useCallback(() => {
-    const functionName = fromCurrency !== 'TOTO' ? 'buyTicket'  : 'sellTicket';
-    changeTransactionData(functionName, [parseEther(fromAmount).toString()])
-  }, [fromCurrency, fromAmount, changeTransactionData]);
+  const handleSwap = async () => {
+     await tradeTicket();
+  };
 
   const handleApprove = useCallback(() => {
-    changeTransactionData('approve', [CONTRACT_ADDRESS, parseEther(fromAmount).toString()])
-  }, [CONTRACT_ADDRESS, fromAmount, changeTransactionData]);
+    if (fromCurrency !== 'TOTO') {
+      approveToken();
+    }
+  }, [CONTRACT_ADDRESS, fromAmount]);
 
   const handleFromAmountChange = useCallback((event) => {
     setFromAmount(event.target.value);
   }, []);
-
+  
   return (
     <Root>
       <Container maxWidth="sm" sx={{ height: "100vh" }}>
-      <Box className="swap-component-window" mt={18}>
-        <h1 className="swap-component-h1">
-          <CurrencyExchangeIcon sx={{ verticalAlign: "middle", marginRight: 1 }} fontSize="large" />
-          Swapping here!
-        </h1>
-        <Grid id="from-box" container spacing={2} sx={{marginTop:0.75}}>
-          <Grid item xs={4}>
-            <FormControl variant="outlined" fullWidth>
-              <InputLabel id="from-currency-label">From Currency</InputLabel>
-              <Select
-                labelId="from-currency-label"
-                className='coin-input-box'
-                id="from-currency"
-                sx={{borderRadius: 8}}
-                value={fromCurrency}
-                label="From Currency"
-                onChange={(event) => setFromCurrency(event.target.value)}
-              >
-                <MenuItem value="USDC">USDC</MenuItem>
-                <MenuItem value="TOTO">TOTO</MenuItem>
-              </Select>
-            </FormControl>
+        <Box className="swap-component-window" mt={18}>
+          <h1 className="swap-component-h1">
+            <CurrencyExchangeIcon sx={{ verticalAlign: "middle", marginRight: 1 }} fontSize="large" />
+            Swapping here!
+          </h1>
+          <Box display="grid" justifyContent="space-between" alignItems="center" name='balance-checker' mt={0.75}>
+            <Typography className='swap-component-balance'>balance : {balance} </Typography>
+          </Box>
+          <Grid id="from-box" container spacing={2} mt={0.25}>
+            <Grid item xs={4}>
+              <FormControl variant="outlined" fullWidth>
+                <InputLabel id="from-currency-label">From Currency</InputLabel>
+                <Select
+                  labelId="from-currency-label"
+                  className='coin-input-box'
+                  id="from-currency"
+                  sx={{borderRadius: 8}}
+                  value={fromCurrency}
+                  label="From Currency"
+                  onChange={(event) => setFromCurrency(event.target.value)}
+                >
+                  <MenuItem value="USDC">USDC</MenuItem>
+                  <MenuItem value="TOTO">TOTO</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={8}>
+              <TextField
+                label={`Amount of ${fromCurrency}`}
+                variant="outlined"
+                type="number"
+                value={fromAmount}
+                onChange={handleFromAmountChange}
+                fullWidth
+              />
+            </Grid>
           </Grid>
-          <Grid item xs={8}>
-            <TextField
-              label={`Amount of ${fromCurrency}`}
-              variant="outlined"
-              type="number"
-              value={fromAmount}
-              onChange={handleFromAmountChange}
-              fullWidth
-            />
+          <Grid id="to-box" container spacing={2} mt={0.5}>
+            <Grid item xs={4}>
+              <FormControl variant="outlined" fullWidth>
+                <InputLabel id="to-currency-label">To Currency</InputLabel>
+                <Select
+                  labelId="to-currency-label"
+                  className='coin-input-box'
+                  id="to-currency"
+                  sx={{borderRadius: 8}}
+                  value={toCurrency}
+                  label="To Currency"
+                  onChange={(event) => setToCurrency(event.target.value)}
+                >
+                  <MenuItem value="USDC">USDC</MenuItem>
+                  <MenuItem value="TOTO">TOTO</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={8}>
+              <TextField
+                label={`Amount of ${toCurrency}`}
+                variant="outlined"
+                disabled
+                value={toAmount}
+                fullWidth
+              />
+            </Grid>
           </Grid>
-        </Grid>
-        <Box mt={0.25} display="grid" justifyContent="space-between" alignItems="center" name='balance-checker' sx={{marginBottom:0.75}}>
-          <Typography className='swap-component-balance'>balance : {balance} </Typography>
+          <Box mt={5} display="grid" justifyContent="space-between" alignItems="center">
+             <Button disabled={!fromAmount ||  !hasAllowance || isSwapping} className='swap-component-btn' variant="contained" onClick={handleSwap}>Swap!</Button>
+             <Button disabled={hasAllowance || isApproving || fromCurrency === 'TOTO'} className='swap-component-btn' variant="contained" onClick={handleApprove}>Approve USDC</Button>
+          </Box>
         </Box>
-        <Grid id="to-box" container spacing={2}>
-          <Grid item xs={4}>
-            <FormControl variant="outlined" fullWidth>
-              <InputLabel id="to-currency-label">To Currency</InputLabel>
-              <Select
-                labelId="to-currency-label"
-                className='coin-input-box'
-                id="to-currency"
-                sx={{borderRadius: 8}}
-                value={toCurrency}
-                label="To Currency"
-                onChange={(event) => setToCurrency(event.target.value)}
-              >
-                <MenuItem value="USDC">USDC</MenuItem>
-                <MenuItem value="TOTO">TOTO</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={8}>
-            <TextField
-              label={`Amount of ${toCurrency}`}
-              variant="outlined"
-              disabled
-              value={toAmount}
-              fullWidth
-            />
-          </Grid>
-        </Grid>
-        <Box mt={5} display="grid" justifyContent="space-between" alignItems="center">
-          <Button disabled={!fromAmount ||  !hasAllowance || isLoading} className='swap-component-btn' variant="contained" onClick={handleSwap}>Swap!</Button>
-          <Button disabled={hasAllowance || isLoading || fromCurrency === 'TOTO'} className='swap-component-btn' variant="contained" onClick={handleApprove}>Approve USDC</Button>
-        </Box>
-      </Box>
-      <Box className="info-component-window" mt={18}>
-        <h1 className="swap-component-h1">
-          <CurrencyExchangeIcon sx={{ verticalAlign: "middle", marginRight: 1 }} fontSize="large" />
-          Swapping here!
-        </h1>
-        <Grid id="from-box" container spacing={2} sx={{marginTop:0.75}}>
-          <Grid item xs={4}>
-            <FormControl variant="outlined" fullWidth>
-              <InputLabel id="from-currency-label">From Currency</InputLabel>
-              <Select
-                labelId="from-currency-label"
-                className='coin-input-box'
-                id="from-currency"
-                sx={{borderRadius: 8}}
-                value={fromCurrency}
-                label="From Currency"
-                onChange={(event) => setFromCurrency(event.target.value)}
-              >
-                <MenuItem value="USDC">USDC</MenuItem>
-                <MenuItem value="TOTO">TOTO</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
-      </Box>
     </Container>  
   </Root>
   );

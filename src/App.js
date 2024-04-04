@@ -10,7 +10,7 @@ import Login from './components/Login';
 import Error from './components/Error';
 import Game2048 from './games/2048/2048';
 import io from "socket.io-client";
-import { useAccount } from 'wagmi';
+import { useAccount, useNetwork, useSwitchNetwork } from 'wagmi';
 import SnowFlake from './components/UIActions/SnowFlake/SnowFlake';
 import Confetti from 'react-confetti';
 import { message } from 'antd';
@@ -25,8 +25,8 @@ const isUnderMaintenance = false;
 const isGuideUser = localStorage.getItem('needGuide');
 
 const PREFIX = 'App';
-// const ENDPOINT = "http://45.83.122.228:4000";
-const ENDPOINT = "http://127.0.0.1:4000";
+const ENDPOINT = "wss://playground.tonamento.app";
+// const ENDPOINT = "http://127.0.0.1:4000";
 
 const classes = {
   root: `${PREFIX}-root`,
@@ -261,8 +261,13 @@ function App() {
     message: '',
     severity: 'success'
   });
-  const {address, isConnected} = useAccount();
 
+  // wagmi hooks
+  const {address, isConnected} = useAccount();
+  const { chain } = useNetwork()
+  const { switchNetworkAsync } = useSwitchNetwork()
+
+  // socket.io hooks
   useEffect(() => {
     const socket = io(ENDPOINT);
 
@@ -280,6 +285,16 @@ function App() {
     };
   }, []);
 
+  // check if user is not guide get her username
+  useEffect(() => {
+    // check if user is not guide get her username
+    const username = localStorage.getItem('username');
+    if (username !== null && username !== 'undefined') {
+      setPlayerUsername(username);
+    }
+  }, [])
+
+  // messageInfo handler
   useEffect(() => {
      if (messageInfo.open) {
         if (messageInfo.severity === 'success' || messageInfo.severity === 'error') {
@@ -302,13 +317,44 @@ function App() {
       }
   } , [messageInfo, confettiStatus]);
 
+  // check if chain is not base goerli
   useEffect(() => {
-    // check if user is not guide get her username
-    const username = localStorage.getItem('username');
-    if (username !== null && username !== 'undefined') {
-      setPlayerUsername(username);
+    // check if chain is not base goerli change network
+    if (chain.id !== 84532) {
+      switchToBaseSepoliaNetwork();
     }
   }, [])
+
+  const switchToBaseSepoliaNetwork = async () => {
+    try {
+      window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        // to binance smart chain
+        params: [{ chainId: '0x14a34' }],
+      }).then(() => {
+      window.ethereum.request({
+        method: 'wallet_addEthereumChain',
+        params: [{
+          chainId: '0x14a34',
+          rpcUrls: ['https://sepolia.base.org']
+        }],
+      }).then(() => {
+        setMessageInfo({
+          open: true,
+          message: 'Switched to Base Sepolia Network',
+          severity: 'success'
+        })
+      })
+      })
+    } catch (error) {
+      console.error('Failed to switch network:', error);
+      setMessageInfo({
+        open: true,
+        message: 'Failed to switch network to Base Sepolia!',
+        severity: 'error'
+      })
+    }
+  };
 
   const handleConfetti = () => setConfettiStatus(false);
 

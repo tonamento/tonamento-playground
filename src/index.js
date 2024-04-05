@@ -19,7 +19,32 @@ const metadata = {
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
 
-const chains = [baseSepolia]
+// Blast Sepolia as Custom Chain
+const blastSepoliaNetwork = {
+  id: 168587773,
+  name: 'Blast Sepolia',
+  nativeCurrency: {
+    name: 'Ether',
+    symbol: 'ETH',
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://sepolia.blast.io'],
+    },
+    public : { http: ['https://sepolia.blast.io'] },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Blastscan',
+      url: 'https://testnet.blastscan.io',
+    },
+  },
+  testnet: true,
+}
+
+const chains = [ baseSepolia, blastSepoliaNetwork ]
+
 const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata })
 
 // 3. Create modal

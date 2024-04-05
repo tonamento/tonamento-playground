@@ -265,7 +265,6 @@ function App() {
   // wagmi hooks
   const {address, isConnected} = useAccount();
   const { chain } = useNetwork()
-  const { switchNetworkAsync } = useSwitchNetwork()
 
   // socket.io hooks
   useEffect(() => {
@@ -320,7 +319,7 @@ function App() {
   // check if chain is not base goerli
   useEffect(() => {
     // check if chain is not base goerli change network
-    if (chain.id !== 84532) {
+    if (chain.id !== 168587773) {
       switchToBaseSepoliaNetwork();
     }
   }, [])
@@ -330,12 +329,12 @@ function App() {
       window.ethereum.request({
         method: 'wallet_switchEthereumChain',
         // to binance smart chain
-        params: [{ chainId: '0x14a34' }],
+        params: [{ chainId: '0xa0c71fd' }],
       }).then(() => {
       window.ethereum.request({
         method: 'wallet_addEthereumChain',
         params: [{
-          chainId: '0x14a34',
+          chainId: '0xa0c71fd',
           rpcUrls: ['https://sepolia.base.org']
         }],
       }).then(() => {

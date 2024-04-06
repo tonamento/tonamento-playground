@@ -6,7 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter as Router } from 'react-router-dom'; 
 import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react';
 import { WagmiConfig } from 'wagmi';
-import { baseGoerli } from 'viem/chains';
+import { baseSepolia } from 'viem/chains';
 
 // 1. Get projectId
 const projectId = '824db33d55d77991289fffda032dfbfc'
@@ -19,7 +19,32 @@ const metadata = {
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
 
-const chains = [baseGoerli]
+// Blast Sepolia as Custom Chain
+const blastSepoliaNetwork = {
+  id: 168587773,
+  name: 'Blast Sepolia',
+  nativeCurrency: {
+    name: 'Ether',
+    symbol: 'ETH',
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://sepolia.blast.io'],
+    },
+    public : { http: ['https://sepolia.blast.io'] },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Blastscan',
+      url: 'https://testnet.blastscan.io',
+    },
+  },
+  testnet: true,
+}
+
+const chains = [ baseSepolia, blastSepoliaNetwork ]
+
 const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata })
 
 // 3. Create modal

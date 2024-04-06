@@ -85,7 +85,7 @@ export default function SwapForm({setMessageInfo}) {
   console.log(allowance)
   
   const { write: tradeTicket, isLoading: isSwapping, isSuccess: isSwapSuccess, error: isSwapError} = useTicketContract(fromCurrency !== 'TOTO' ? 'buyTicket' : 'sellTicket', [fromAmount? parseEther(fromAmount.toString()) : null]);
-  const { write: approveToken, isLoading: isApproving, isSuccess: isApproveSuccess, error: isApproveError} = useTokenContract(TOKENS_DATA[fromCurrency]?.address, [CONTRACT_ADDRESS, usdBalance? parseEther(usdBalance?.formatted.toString()) : null]);
+  const { write: approveToken, isLoading: isApproving, isSuccess: isApproveSuccess, error: isApproveError} = useTokenContract(TOKENS_DATA[fromCurrency]?.address, [CONTRACT_ADDRESS, usdBalance? parseEther(usdBalance?.formatted.toString()) : 10000000000000000000]);
 
   const calculateTradeRate = useCallback(() => {
     const localStorageAllowance = localStorage.getItem('allowance');
